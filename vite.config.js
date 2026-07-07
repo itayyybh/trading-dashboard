@@ -7,4 +7,8 @@ export default defineConfig({
   optimizeDeps: {
     include: ['recharts'],
   },
+  server: {
+    port: Number(process.env.PORT) || 5173,
+    strictPort: false,
+  },
 })
