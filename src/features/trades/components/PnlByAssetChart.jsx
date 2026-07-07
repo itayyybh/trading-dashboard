@@ -15,11 +15,13 @@ export default function PnlByAssetChart({ byAsset }) {
           <XAxis type="number" tick={{ fill:C.muted, fontSize:10 }} tickFormatter={v=>`$${v}`} />
           <YAxis type="category" dataKey="name" tick={{ fill:C.text, fontSize:11 }} width={36} />
           <Tooltip
+            cursor={{ fill: C.border, fillOpacity: 0.3 }}
             contentStyle={{
               background: C.panel,
               border: `1px solid ${C.border}`,
               borderRadius: 8,
             }}
+            labelStyle={{ color: C.text }}
             formatter={(value) => [
               <span
                 style={{

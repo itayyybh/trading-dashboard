@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { listPortfolios, createPortfolio, deletePortfolio } from "../portfolios/api";
 import PortfolioTabs from "../portfolios/PortfolioTabs";
+import { getTrades } from "./api/tradesApi";
 import { stats } from "./stats";
 import { C } from "./constants";
 import { fmt, fmtPct } from "./format";
@@ -19,6 +20,7 @@ export default function Dashboard() {
   const [portfolios, setPortfolios] = useState(null); // null = loading
   const [activeId, setActiveId] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [trades, setTrades] = useState(null); // null = loading, [] = loaded empty
 
   useEffect(() => {
     listPortfolios().then((rows) => {
@@ -26,6 +28,19 @@ export default function Dashboard() {
       if (rows.length) setActiveId(rows[0].id);
     });
   }, []);
+
+  useEffect(() => {
+    if (!activeId) {
+      setTrades([]);
+      return;
+    }
+    setTrades(null);
+    getTrades(activeId).then(setTrades);
+  }, [activeId]);
+
+  async function refreshTrades() {
+    if (activeId) setTrades(await getTrades(activeId));
+  }
 
   async function handleCreate(name) {
     const created = await createPortfolio(name);
@@ -47,8 +62,7 @@ export default function Dashboard() {
   }
 
   const activePortfolio = portfolios.find((p) => p.id === activeId) ?? null;
-  const trades = []; // trades will come from Supabase in a later phase
-  const s = stats(trades);
+  const s = stats(trades ?? []);
 
   return (
     <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Inter', system-ui, sans-serif", padding: "24px 20px" }}>
@@ -86,11 +100,13 @@ export default function Dashboard() {
       </div>
 
       {activePortfolio && showImport && (
-        <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} />
+        <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} onImported={refreshTrades} />
       )}
 
       {!activePortfolio ? (
         <EmptyState title="Create your first portfolio" subtitle="Use “+ New portfolio” above to get started." />
+      ) : trades === null ? (
+        <div style={{ color: C.muted, fontSize: 13 }}>Loading trades…</div>
       ) : trades.length === 0 ? (
         <EmptyState title={`No trades yet in ${activePortfolio.name}`} subtitle="Use “Import CSV” above to upload your first broker export." />
       ) : (

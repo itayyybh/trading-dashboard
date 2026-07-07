@@ -15,11 +15,13 @@ export default function PnlByDayChart({ byDay }) {
           <XAxis dataKey="date" tick={{ fill:C.muted, fontSize:8 }} angle={-35} textAnchor="end" height={40} />
           <YAxis tick={{ fill:C.muted, fontSize:10 }} tickFormatter={v=>`$${v}`} />
           <Tooltip
+            cursor={{ fill: C.border, fillOpacity: 0.3 }}
             contentStyle={{
               background: C.panel,
               border: `1px solid ${C.border}`,
               borderRadius: 8,
             }}
+            labelStyle={{ color: C.text }}
             formatter={(value) => [
               <span
                 style={{
