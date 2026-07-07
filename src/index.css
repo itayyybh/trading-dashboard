@@ -1,0 +1,12 @@
+* {
+  margin: 0;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  /* matches C.bg in features/trades/constants.js - avoids a white flash/border before the app mounts */
+  background: #0a0d14;
+}

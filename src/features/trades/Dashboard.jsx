@@ -13,10 +13,12 @@ import WinLossPie from "./components/WinLossPie";
 import LongShortBreakdown from "./components/LongShortBreakdown";
 import TradeLogTable from "./components/TradeLogTable";
 import EmptyState from "./components/EmptyState";
+import ImportFlow from "../csvImport/ImportFlow";
 
 export default function Dashboard() {
   const [portfolios, setPortfolios] = useState(null); // null = loading
   const [activeId, setActiveId] = useState(null);
+  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     listPortfolios().then((rows) => {
@@ -65,18 +67,32 @@ export default function Dashboard() {
         </button>
       </div>
 
-      <PortfolioTabs
-        portfolios={portfolios}
-        activeId={activeId}
-        onSelect={setActiveId}
-        onCreate={handleCreate}
-        onDelete={handleDelete}
-      />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+        <PortfolioTabs
+          portfolios={portfolios}
+          activeId={activeId}
+          onSelect={setActiveId}
+          onCreate={handleCreate}
+          onDelete={handleDelete}
+        />
+        {activePortfolio && !showImport && (
+          <button
+            onClick={() => setShowImport(true)}
+            style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${C.accent}`, background: C.accentDim, color: C.accent, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+          >
+            Import CSV
+          </button>
+        )}
+      </div>
+
+      {activePortfolio && showImport && (
+        <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} />
+      )}
 
       {!activePortfolio ? (
         <EmptyState title="Create your first portfolio" subtitle="Use “+ New portfolio” above to get started." />
       ) : trades.length === 0 ? (
-        <EmptyState title={`No trades yet in ${activePortfolio.name}`} subtitle="CSV upload is coming in the next phase." />
+        <EmptyState title={`No trades yet in ${activePortfolio.name}`} subtitle="Use “Import CSV” above to upload your first broker export." />
       ) : (
         <>
           {/* KPI Row */}

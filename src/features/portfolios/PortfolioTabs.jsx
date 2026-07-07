@@ -18,28 +18,41 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
 
   return (
     <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
-      {portfolios.map((p) => (
-        <div key={p.id} style={{ display: "flex", alignItems: "center" }}>
-          <button
-            onClick={() => onSelect(p.id)}
+      {portfolios.map((p) => {
+        const active = activeId === p.id;
+        const tone = active ? C.accent : C.muted;
+        return (
+          <div
+            key={p.id}
             style={{
-              padding: "7px 16px", borderRadius: 20, border: `1px solid ${activeId === p.id ? C.accent : C.border}`,
-              background: activeId === p.id ? C.accentDim : "transparent",
-              color: activeId === p.id ? C.accent : C.muted,
-              fontSize: 12, fontWeight: 600, cursor: "pointer", letterSpacing: 0.5,
+              display: "flex", alignItems: "center", gap: 4,
+              padding: "5px 6px 5px 16px", borderRadius: 20,
+              border: `1px solid ${active ? C.accent : C.border}`,
+              background: active ? C.accentDim : "transparent",
             }}
           >
-            {p.name}
-          </button>
-          <button
-            onClick={() => onDelete(p.id)}
-            title={`Delete ${p.name}`}
-            style={{ marginLeft: -6, background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 14, padding: "0 8px 0 2px" }}
-          >
-            ×
-          </button>
-        </div>
-      ))}
+            <button
+              onClick={() => onSelect(p.id)}
+              style={{
+                background: "transparent", border: "none", padding: 0,
+                color: tone, fontSize: 12, fontWeight: 600, cursor: "pointer", letterSpacing: 0.5,
+              }}
+            >
+              {p.name}
+            </button>
+            <button
+              onClick={() => onDelete(p.id)}
+              title={`Delete ${p.name}`}
+              style={{
+                background: "transparent", border: "none", cursor: "pointer",
+                color: tone, opacity: 0.7, fontSize: 14, lineHeight: 1, padding: "2px 6px",
+              }}
+            >
+              ×
+            </button>
+          </div>
+        );
+      })}
 
       {adding ? (
         <form onSubmit={submitNew} style={{ display: "flex", gap: 6 }}>
