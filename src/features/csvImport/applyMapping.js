@@ -1,14 +1,17 @@
+// labelKey looks up the display text in translations.js (translated at
+// render time in ImportFlow.jsx) - kept as a key here so this file stays
+// locale-agnostic.
 export const UNIFIED_FIELDS = [
-  { key: "trade_date", label: "Date", required: true },
-  { key: "direction", label: "Direction", required: true },
-  { key: "symbol", label: "Symbol", required: true },
-  { key: "pnl", label: "P&L", required: true },
-  { key: "entry_time", label: "Entry time", required: false },
-  { key: "exit_time", label: "Exit time", required: false },
-  { key: "quantity", label: "Quantity", required: false },
-  { key: "entry_price", label: "Entry price", required: false },
-  { key: "exit_price", label: "Exit price", required: false },
-  { key: "fees", label: "Fees", required: false },
+  { key: "trade_date", labelKey: "date", required: true },
+  { key: "direction", labelKey: "directionField", required: true },
+  { key: "symbol", labelKey: "symbolField", required: true },
+  { key: "pnl", labelKey: "pnl", required: true },
+  { key: "entry_time", labelKey: "entryTimeField", required: false },
+  { key: "exit_time", labelKey: "exitTimeField", required: false },
+  { key: "quantity", labelKey: "quantityField", required: false },
+  { key: "entry_price", labelKey: "entryPriceField", required: false },
+  { key: "exit_price", labelKey: "exitPriceField", required: false },
+  { key: "fees", labelKey: "feesField", required: false },
 ];
 
 const DIRECTION_SYNONYMS = {
@@ -89,11 +92,12 @@ export function mapRow(row, mapping) {
   const symbol = String(get("symbol") ?? "").trim();
   const pnl = normalizeNumber(get("pnl"));
 
+  // Codes, not display text - translated at render time (this file stays locale-agnostic).
   const errors = [];
-  if (!trade_date) errors.push("invalid date");
-  if (!direction) errors.push("unrecognized direction");
-  if (!symbol) errors.push("missing symbol");
-  if (pnl === null) errors.push("invalid P&L");
+  if (!trade_date) errors.push("invalidDate");
+  if (!direction) errors.push("unrecognizedDirection");
+  if (!symbol) errors.push("missingSymbol");
+  if (pnl === null) errors.push("invalidPnl");
 
   if (errors.length) {
     return { ok: false, errors };

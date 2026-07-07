@@ -1,0 +1,224 @@
+// Each value is either a plain string, or a function for strings that need
+// dynamic values interpolated (e.g. counts, filenames) - kept as a function
+// per locale (not a template-token replacer) so word order can differ freely
+// between English and Hebrew instead of forcing the same sentence structure.
+export const translations = {
+  en: {
+    // Auth
+    signIn: "Sign in",
+    signUp: "Sign up",
+    createAccount: "Create account",
+    email: "Email",
+    password: "Password",
+    pleaseWait: "Please wait…",
+    noAccountQuestion: "No account?",
+    alreadyHaveAccountQuestion: "Already have an account?",
+    confirmEmailPrefix: "Check your email to confirm your account, then",
+
+    // Dashboard shell
+    tradingJournal: "Trading Journal",
+    performanceDashboard: "Performance Dashboard",
+    signOut: "Sign out",
+    importCsv: "Import CSV",
+    loadingTrades: "Loading trades…",
+    loading: "loading...",
+    createFirstPortfolio: "Create your first portfolio",
+    createFirstPortfolioSubtitle: "Use “+ New portfolio” above to get started.",
+    noTradesYetIn: (name) => `No trades yet in ${name}`,
+    noTradesYetSubtitle: "Use “Import CSV” above to upload your first broker export.",
+
+    // KPIs
+    totalPnl: "Total P&L",
+    winRate: "Win Rate",
+    avgWin: "Avg Win",
+    avgLoss: "Avg Loss",
+    rrr: "RRR",
+    rewardRisk: "reward:risk",
+    bestStreak: "Best Streak",
+    winsLossesShort: (wins, losses) => `${wins}W · ${losses}L`,
+    worstStreak: (maxLoss) => `${maxLoss}L worst`,
+
+    // Section titles
+    equityCurve: "Equity Curve",
+    pnlByDay: "P&L by Day",
+    pnlByAsset: "P&L by Asset",
+    winLossSplit: "Win / Loss Split",
+    longVsShort: "Long vs Short",
+    tradeLog: "Trade Log",
+
+    // Equity curve chart
+    tradeNumber: "Trade #",
+    cumulativePnl: "Cumulative P&L",
+
+    // Win/loss pie
+    wins: "Wins",
+    losses: "Losses",
+    profitFactor: "Profit Factor",
+
+    // Long vs short
+    long: "Long",
+    short: "Short",
+    tradesSuffix: (n) => `${n} trades`,
+    winRateSuffix: (wr) => `${wr}% win rate`,
+
+    // Trade log table
+    date: "Date",
+    entry: "Entry",
+    exit: "Exit",
+    dirShort: "Dir",
+    asset: "Asset",
+    pnl: "P&L",
+
+    // Portfolios
+    newPortfolio: "+ New portfolio",
+    portfolioNamePlaceholder: "Portfolio name",
+    add: "Add",
+    delete: "Delete",
+
+    // CSV import
+    importTradesFromCsv: "Import trades from CSV",
+    close: "Close",
+    onlyCsvSupported: "Only CSV files are supported right now — Excel and other formats are coming in a later phase.",
+    fileTooLarge: (mb) => `File is too large — the limit is ${mb}MB for now.`,
+    chooseCsvFile: "Choose CSV file",
+    csvOnlyUpTo: (mb) => `CSV only, up to ${mb}MB.`,
+    useSavedMapping: "Use a saved mapping:",
+    chooseTemplateOption: "— choose a template —",
+    autoDetectedNote: "Columns are auto-detected from your headers — double-check them below and adjust anything that's wrong.",
+    brokerNamePlaceholder: "Broker name (e.g. Interactive Brokers)",
+    saveAsTemplateLabel: "Save as template",
+    importLabel: "Import",
+    importing: "Importing…",
+    chooseDifferentFile: "Choose a different file",
+    rowsTooMany: (n, max) => `This file has ${n} rows — the limit is ${max} for now.`,
+    importedOfRows: (a, b) => `Imported ${a} of ${b} rows.`,
+    skippedRows: (n) => `Skipped ${n} row(s) that couldn't be mapped (bad date, direction, symbol, or P&L).`,
+    importAnotherFile: "Import another file",
+    statusOk: "ok",
+
+    // Unified field labels (CSV mapping UI)
+    symbolField: "Symbol",
+    directionField: "Direction",
+    entryTimeField: "Entry time",
+    exitTimeField: "Exit time",
+    quantityField: "Quantity",
+    entryPriceField: "Entry price",
+    exitPriceField: "Exit price",
+    feesField: "Fees",
+
+    // Row validation error codes
+    invalidDate: "invalid date",
+    unrecognizedDirection: "unrecognized direction",
+    missingSymbol: "missing symbol",
+    invalidPnl: "invalid P&L",
+  },
+  he: {
+    // Auth
+    signIn: "התחברות",
+    signUp: "הרשמה",
+    createAccount: "יצירת חשבון",
+    email: "אימייל",
+    password: "סיסמה",
+    pleaseWait: "רגע בבקשה…",
+    noAccountQuestion: "אין לך חשבון?",
+    alreadyHaveAccountQuestion: "יש לך כבר חשבון?",
+    confirmEmailPrefix: "בדוק את תיבת הדואר שלך לאישור החשבון, ואז",
+
+    // Dashboard shell
+    tradingJournal: "יומן מסחר",
+    performanceDashboard: "לוח בקרה לביצועים",
+    signOut: "התנתקות",
+    importCsv: "ייבוא CSV",
+    loadingTrades: "טוען עסקאות…",
+    loading: "טוען...",
+    createFirstPortfolio: "צור את התיק הראשון שלך",
+    createFirstPortfolioSubtitle: "לחץ על “תיק חדש +” מעלה כדי להתחיל.",
+    noTradesYetIn: (name) => `אין עדיין עסקאות בתיק ${name}`,
+    noTradesYetSubtitle: "לחץ על “ייבוא CSV” מעלה כדי להעלות את הקובץ הראשון שלך.",
+
+    // KPIs
+    totalPnl: "רווח/הפסד כולל",
+    winRate: "אחוז הצלחה",
+    avgWin: "רווח ממוצע",
+    avgLoss: "הפסד ממוצע",
+    rrr: "RRR",
+    rewardRisk: "תמורה:סיכון",
+    bestStreak: "הרצף הטוב ביותר",
+    winsLossesShort: (wins, losses) => `${wins} הצלחות · ${losses} הפסדים`,
+    worstStreak: (maxLoss) => `הגרוע ביותר: ${maxLoss}`,
+
+    // Section titles
+    equityCurve: "עקומת ההון",
+    pnlByDay: "רווח/הפסד לפי יום",
+    pnlByAsset: "רווח/הפסד לפי נכס",
+    winLossSplit: "התפלגות הצלחות/הפסדים",
+    longVsShort: "לונג מול שורט",
+    tradeLog: "יומן עסקאות",
+
+    // Equity curve chart
+    tradeNumber: "עסקה מספר",
+    cumulativePnl: "רווח/הפסד מצטבר",
+
+    // Win/loss pie
+    wins: "הצלחות",
+    losses: "הפסדים",
+    profitFactor: "מקדם רווח",
+
+    // Long vs short
+    long: "לונג",
+    short: "שורט",
+    tradesSuffix: (n) => `${n} עסקאות`,
+    winRateSuffix: (wr) => `${wr}% אחוז הצלחה`,
+
+    // Trade log table
+    date: "תאריך",
+    entry: "כניסה",
+    exit: "יציאה",
+    dirShort: "כיוון",
+    asset: "נכס",
+    pnl: "רווח/הפסד",
+
+    // Portfolios
+    newPortfolio: "+ תיק חדש",
+    portfolioNamePlaceholder: "שם התיק",
+    add: "הוסף",
+    delete: "מחיקה",
+
+    // CSV import
+    importTradesFromCsv: "ייבוא עסקאות מקובץ CSV",
+    close: "סגור",
+    onlyCsvSupported: "כרגע נתמכים רק קבצי CSV — תמיכה באקסל ובפורמטים נוספים תגיע בהמשך.",
+    fileTooLarge: (mb) => `הקובץ גדול מהמותר — המגבלה הנוכחית היא ${mb}MB.`,
+    chooseCsvFile: "בחר קובץ CSV",
+    csvOnlyUpTo: (mb) => `קבצי CSV בלבד, עד ${mb}MB.`,
+    useSavedMapping: "השתמש במיפוי שמור:",
+    chooseTemplateOption: "— בחר תבנית —",
+    autoDetectedNote: "העמודות זוהו אוטומטית מהכותרות שלך — בדוק אותן מתחת ותקן במידת הצורך.",
+    brokerNamePlaceholder: "שם הברוקר (למשל Interactive Brokers)",
+    saveAsTemplateLabel: "שמור כתבנית",
+    importLabel: "ייבוא",
+    importing: "מייבא…",
+    chooseDifferentFile: "בחר קובץ אחר",
+    rowsTooMany: (n, max) => `בקובץ זה ${n} שורות — המגבלה הנוכחית היא ${max}.`,
+    importedOfRows: (a, b) => `יובאו ${a} מתוך ${b} שורות.`,
+    skippedRows: (n) => `${n} שורות דולגו כיוון שלא ניתן היה למפות אותן (תאריך, כיוון, נכס או רווח/הפסד שגויים).`,
+    importAnotherFile: "ייבוא קובץ נוסף",
+    statusOk: "תקין",
+
+    // Unified field labels (CSV mapping UI)
+    symbolField: "סימבול",
+    directionField: "כיוון",
+    entryTimeField: "שעת כניסה",
+    exitTimeField: "שעת יציאה",
+    quantityField: "כמות",
+    entryPriceField: "מחיר כניסה",
+    exitPriceField: "מחיר יציאה",
+    feesField: "עמלות",
+
+    // Row validation error codes
+    invalidDate: "תאריך לא תקין",
+    unrecognizedDirection: "כיוון לא מוכר",
+    missingSymbol: "נכס חסר",
+    invalidPnl: "רווח/הפסד לא תקין",
+  },
+};

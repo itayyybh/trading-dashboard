@@ -4,11 +4,14 @@ import {
 import { C, ASSET_COLORS } from "../constants";
 import { fmt } from "../format";
 import SectionTitle from "./SectionTitle";
+import { useLocale } from "../../../lib/i18n/LocaleContext";
 
 export default function PnlByAssetChart({ byAsset }) {
+  const { t } = useLocale();
+
   return (
-    <div style={{ background:C.panel, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
-      <SectionTitle>P&L by Asset</SectionTitle>
+    <div dir="ltr" style={{ background:C.panel, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+      <SectionTitle>{t("pnlByAsset")}</SectionTitle>
       <ResponsiveContainer width="100%" height={160}>
         <BarChart data={byAsset} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" stroke={C.border} />

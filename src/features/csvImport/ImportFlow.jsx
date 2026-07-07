@@ -4,6 +4,7 @@ import { parseCsvPreview, parseCsvFull } from "./parseCsv";
 import { UNIFIED_FIELDS, applyMapping, mapRow, guessMapping } from "./applyMapping";
 import { listMappingTemplates, saveMappingTemplate } from "./mappingTemplatesApi";
 import { importTrades } from "./importApi";
+import { useLocale } from "../../lib/i18n/LocaleContext";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_ROWS = 10000;
@@ -14,6 +15,7 @@ const selectStyle = {
 };
 
 export default function ImportFlow({ portfolioId, onImported, onClose }) {
+  const { t } = useLocale();
   const fileInputRef = useRef(null);
   const [templates, setTemplates] = useState([]);
   const [file, setFile] = useState(null);
@@ -37,12 +39,12 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
     setDoneSummary(null);
 
     if (!f.name.toLowerCase().endsWith(".csv")) {
-      setError("Only CSV files are supported right now — Excel and other formats are coming in a later phase.");
+      setError(t("onlyCsvSupported"));
       return;
     }
 
     if (f.size > MAX_FILE_BYTES) {
-      setError(`File is too large — the limit is ${MAX_FILE_BYTES / 1024 / 1024}MB for now.`);
+      setError(t("fileTooLarge", MAX_FILE_BYTES / 1024 / 1024));
       return;
     }
 
@@ -75,7 +77,7 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
       const { rows } = await parseCsvFull(file);
 
       if (rows.length > MAX_ROWS) {
-        setError(`This file has ${rows.length} rows — the limit is ${MAX_ROWS} for now.`);
+        setError(t("rowsTooMany", rows.length, MAX_ROWS));
         setPending(false);
         return;
       }
@@ -118,22 +120,22 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
   return (
     <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: C.muted }}>Import trades from CSV</span>
-        <button onClick={onClose} style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 13 }}>Close</button>
+        <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: C.muted }}>{t("importTradesFromCsv")}</span>
+        <button onClick={onClose} style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 13 }}>{t("close")}</button>
       </div>
 
       {doneSummary ? (
         <div>
           <div style={{ color: C.accent, fontWeight: 700, marginBottom: 6 }}>
-            Imported {doneSummary.imported} of {doneSummary.total} rows.
+            {t("importedOfRows", doneSummary.imported, doneSummary.total)}
           </div>
           {doneSummary.skipped > 0 && (
             <div style={{ color: C.gold, fontSize: 13, marginBottom: 12 }}>
-              Skipped {doneSummary.skipped} row(s) that couldn't be mapped (bad date, direction, symbol, or P&L).
+              {t("skippedRows", doneSummary.skipped)}
             </div>
           )}
           <button onClick={reset} style={{ padding: "7px 14px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, cursor: "pointer" }}>
-            Import another file
+            {t("importAnotherFile")}
           </button>
         </div>
       ) : !file ? (
@@ -153,34 +155,34 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
               background: C.accentDim, color: C.accent, fontSize: 13, fontWeight: 700, cursor: "pointer",
             }}
           >
-            <span style={{ fontSize: 16 }}>↑</span> Choose CSV file
+            <span style={{ fontSize: 16 }}>↑</span> {t("chooseCsvFile")}
           </button>
-          <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>CSV only, up to {MAX_FILE_BYTES / 1024 / 1024}MB.</div>
+          <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>{t("csvOnlyUpTo", MAX_FILE_BYTES / 1024 / 1024)}</div>
           {error && <div style={{ color: C.red, fontSize: 12, marginTop: 10 }}>{error}</div>}
         </div>
       ) : (
         <div>
           {templates.length > 0 && (
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, color: C.muted, marginRight: 8 }}>Use a saved mapping:</label>
+              <label style={{ fontSize: 12, color: C.muted, marginRight: 8 }}>{t("useSavedMapping")}</label>
               <select style={selectStyle} defaultValue="" onChange={(e) => e.target.value && applyTemplate(e.target.value)}>
-                <option value="">— choose a template —</option>
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>{t.broker_label}</option>
+                <option value="">{t("chooseTemplateOption")}</option>
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id}>{template.broker_label}</option>
                 ))}
               </select>
             </div>
           )}
 
           <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>
-            Columns are auto-detected from your headers — double-check them below and adjust anything that's wrong.
+            {t("autoDetectedNote")}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
             {UNIFIED_FIELDS.map((field) => (
               <div key={field.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <label style={{ fontSize: 12, color: C.muted }}>
-                  {field.label}{field.required && <span style={{ color: C.red }}> *</span>}
+                  {t(field.labelKey)}{field.required && <span style={{ color: C.red }}> *</span>}
                 </label>
                 <select
                   style={selectStyle}
@@ -198,14 +200,14 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
 
           <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14 }}>
             <input
-              placeholder="Broker name (e.g. Interactive Brokers)"
+              placeholder={t("brokerNamePlaceholder")}
               value={brokerLabel}
               onChange={(e) => setBrokerLabel(e.target.value)}
               style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 10px", color: C.text, fontSize: 12, flex: 1 }}
             />
             <label style={{ fontSize: 12, color: C.muted, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
               <input type="checkbox" checked={saveAsTemplate} onChange={(e) => setSaveAsTemplate(e.target.checked)} />
-              Save as template
+              {t("saveAsTemplateLabel")}
             </label>
           </div>
 
@@ -214,10 +216,10 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
               <thead>
                 <tr style={{ color: C.muted, textAlign: "left" }}>
                   <th style={{ padding: "4px 8px" }}>#</th>
-                  <th style={{ padding: "4px 8px" }}>Date</th>
-                  <th style={{ padding: "4px 8px" }}>Dir</th>
-                  <th style={{ padding: "4px 8px" }}>Symbol</th>
-                  <th style={{ padding: "4px 8px" }}>P&L</th>
+                  <th style={{ padding: "4px 8px" }}>{t("date")}</th>
+                  <th style={{ padding: "4px 8px" }}>{t("dirShort")}</th>
+                  <th style={{ padding: "4px 8px" }}>{t("symbolField")}</th>
+                  <th style={{ padding: "4px 8px" }}>{t("pnl")}</th>
                   <th style={{ padding: "4px 8px" }}>Status</th>
                 </tr>
               </thead>
@@ -233,10 +235,10 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
                           <td style={{ padding: "4px 8px" }}>{result.trade.direction}</td>
                           <td style={{ padding: "4px 8px" }}>{result.trade.symbol}</td>
                           <td style={{ padding: "4px 8px" }}>{result.trade.pnl}</td>
-                          <td style={{ padding: "4px 8px", color: C.accent }}>ok</td>
+                          <td style={{ padding: "4px 8px", color: C.accent }}>{t("statusOk")}</td>
                         </>
                       ) : (
-                        <td colSpan={4} style={{ padding: "4px 8px", color: C.red }}>{result.errors.join(", ")}</td>
+                        <td colSpan={4} style={{ padding: "4px 8px", color: C.red }}>{result.errors.map((code) => t(code)).join(", ")}</td>
                       )}
                     </tr>
                   );
@@ -258,10 +260,10 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
                 cursor: !requiredFieldsMapped || pending ? "default" : "pointer",
               }}
             >
-              {pending ? "Importing…" : "Import"}
+              {pending ? t("importing") : t("importLabel")}
             </button>
             <button onClick={reset} style={{ padding: "8px 18px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, cursor: "pointer" }}>
-              Choose a different file
+              {t("chooseDifferentFile")}
             </button>
           </div>
         </div>

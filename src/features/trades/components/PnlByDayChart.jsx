@@ -4,11 +4,14 @@ import {
 import { C } from "../constants";
 import { fmt } from "../format";
 import SectionTitle from "./SectionTitle";
+import { useLocale } from "../../../lib/i18n/LocaleContext";
 
 export default function PnlByDayChart({ byDay }) {
+  const { t } = useLocale();
+
   return (
-    <div style={{ background:C.panel, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
-      <SectionTitle>P&L by Day</SectionTitle>
+    <div dir="ltr" style={{ background:C.panel, border:`1px solid ${C.border}`, borderRadius:12, padding:20 }}>
+      <SectionTitle>{t("pnlByDay")}</SectionTitle>
       <ResponsiveContainer width="100%" height={160}>
         <BarChart data={byDay}>
           <CartesianGrid strokeDasharray="3 3" stroke={C.border} />

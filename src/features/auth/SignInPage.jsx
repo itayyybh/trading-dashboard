@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { C } from "../trades/constants";
+import { useLocale } from "../../lib/i18n/LocaleContext";
 import AuthForm from "./AuthForm";
 
 export default function SignInPage() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { t } = useLocale();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -32,14 +34,14 @@ export default function SignInPage() {
 
   return (
     <AuthForm
-      title="Sign in"
+      title={t("signIn")}
       onSubmit={handleSubmit}
-      submitLabel="Sign in"
+      submitLabel={t("signIn")}
       pending={pending}
       error={error}
       footer={
         <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
-          No account? <Link to="/sign-up" style={{ color: C.accent }}>Sign up</Link>
+          {t("noAccountQuestion")} <Link to="/sign-up" style={{ color: C.accent }}>{t("signUp")}</Link>
         </div>
       }
     />

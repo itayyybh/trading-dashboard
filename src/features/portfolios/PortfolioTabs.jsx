@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { C } from "../trades/constants";
+import { useLocale } from "../../lib/i18n/LocaleContext";
 
 export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate, onDelete }) {
+  const { t } = useLocale();
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState("");
   const [pending, setPending] = useState(false);
@@ -42,7 +44,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
             </button>
             <button
               onClick={() => onDelete(p.id)}
-              title={`Delete ${p.name}`}
+              title={`${t("delete")} ${p.name}`}
               style={{
                 background: "transparent", border: "none", cursor: "pointer",
                 color: tone, opacity: 0.7, fontSize: 14, lineHeight: 1, padding: "2px 6px",
@@ -60,7 +62,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
             autoFocus
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Portfolio name"
+            placeholder={t("portfolioNamePlaceholder")}
             style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 20, padding: "6px 12px", color: C.text, fontSize: 12 }}
           />
           <button
@@ -68,7 +70,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
             disabled={pending}
             style={{ padding: "7px 14px", borderRadius: 20, border: `1px solid ${C.accent}`, background: C.accentDim, color: C.accent, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
           >
-            {pending ? "…" : "Add"}
+            {pending ? "…" : t("add")}
           </button>
         </form>
       ) : (
@@ -76,7 +78,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
           onClick={() => setAdding(true)}
           style={{ padding: "7px 16px", borderRadius: 20, border: `1px dashed ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
         >
-          + New portfolio
+          {t("newPortfolio")}
         </button>
       )}
     </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { C } from "../trades/constants";
+import { useLocale } from "../../lib/i18n/LocaleContext";
 import AuthForm from "./AuthForm";
 
 export default function SignUpPage() {
@@ -9,6 +10,7 @@ export default function SignUpPage() {
   const [error, setError] = useState(null);
   const [confirmSent, setConfirmSent] = useState(false);
   const navigate = useNavigate();
+  const { t } = useLocale();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -41,7 +43,7 @@ export default function SignUpPage() {
     return (
       <div style={{ background: C.bg, minHeight: "100vh", color: C.text, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', system-ui, sans-serif" }}>
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, width: 320, textAlign: "center" }}>
-          Check your email to confirm your account, then <Link to="/sign-in" style={{ color: C.accent }}>sign in</Link>.
+          {t("confirmEmailPrefix")} <Link to="/sign-in" style={{ color: C.accent }}>{t("signIn").toLowerCase()}</Link>.
         </div>
       </div>
     );
@@ -49,14 +51,14 @@ export default function SignUpPage() {
 
   return (
     <AuthForm
-      title="Create account"
+      title={t("createAccount")}
       onSubmit={handleSubmit}
-      submitLabel="Sign up"
+      submitLabel={t("signUp")}
       pending={pending}
       error={error}
       footer={
         <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
-          Already have an account? <Link to="/sign-in" style={{ color: C.accent }}>Sign in</Link>
+          {t("alreadyHaveAccountQuestion")} <Link to="/sign-in" style={{ color: C.accent }}>{t("signIn")}</Link>
         </div>
       }
     />
