@@ -64,18 +64,21 @@ export function guessMapping(headers) {
   return mapping;
 }
 
-function normalizeDirection(value) {
+// Exported for reuse by the manual "Log Trade" form (LogTradeModal.jsx),
+// which needs the same normalization rules as a CSV row without going
+// through a column mapping.
+export function normalizeDirection(value) {
   const key = String(value ?? "").trim().toLowerCase();
   return DIRECTION_SYNONYMS[key] ?? null;
 }
 
-function normalizeNumber(value) {
+export function normalizeNumber(value) {
   if (value === null || value === undefined || value === "") return null;
   const n = parseFloat(String(value).replace(/[$,]/g, "").trim());
   return Number.isFinite(n) ? n : null;
 }
 
-function normalizeDate(value) {
+export function normalizeDate(value) {
   if (!value) return null;
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;

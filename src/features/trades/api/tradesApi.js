@@ -27,3 +27,17 @@ export async function getTrades(portfolioId) {
   if (error) throw error;
   return data.map(toDisplayTrade);
 }
+
+// `trade` is already normalized (see applyMapping.js's normalize* helpers,
+// reused by LogTradeModal.jsx) - this just tags it as a manual entry and inserts.
+export async function logManualTrade(portfolioId, trade) {
+  const { error } = await supabase.from("trades").insert({
+    ...trade,
+    portfolio_id: portfolioId,
+    import_batch_id: null,
+    source: "manual",
+    source_file: null,
+  });
+
+  if (error) throw error;
+}

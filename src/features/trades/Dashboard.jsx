@@ -15,6 +15,7 @@ import LongShortBreakdown from "./components/LongShortBreakdown";
 import TradeLogTable from "./components/TradeLogTable";
 import EmptyState from "./components/EmptyState";
 import ImportFlow from "../csvImport/ImportFlow";
+import LogTradeModal from "./LogTradeModal";
 import { useLocale } from "../../lib/i18n/LocaleContext";
 import LocaleToggle from "../shared/LocaleToggle";
 
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [portfolios, setPortfolios] = useState(null); // null = loading
   const [activeId, setActiveId] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [showLogTrade, setShowLogTrade] = useState(false);
   const [trades, setTrades] = useState(null); // null = loading, [] = loaded empty
 
   useEffect(() => {
@@ -95,18 +97,39 @@ export default function Dashboard() {
           onCreate={handleCreate}
           onDelete={handleDelete}
         />
-        {activePortfolio && !showImport && (
-          <button
-            onClick={() => setShowImport(true)}
-            style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${C.accent}`, background: C.accentDim, color: C.accent, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-          >
-            {t("importCsv")}
-          </button>
+        {activePortfolio && (
+          <div style={{ display: "flex", gap: 8 }}>
+            {!showImport && (
+              <button
+                onClick={() => setShowImport(true)}
+                style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${C.accent}`, background: C.accentDim, color: C.accent, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+              >
+                {t("importCsv")}
+              </button>
+            )}
+            <button
+              onClick={() => setShowLogTrade(true)}
+              style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+            >
+              {t("logTrade")}
+            </button>
+          </div>
         )}
       </div>
 
       {activePortfolio && showImport && (
         <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} onImported={refreshTrades} />
+      )}
+
+      {activePortfolio && showLogTrade && (
+        <LogTradeModal
+          portfolioId={activePortfolio.id}
+          onClose={() => setShowLogTrade(false)}
+          onSaved={() => {
+            setShowLogTrade(false);
+            refreshTrades();
+          }}
+        />
       )}
 
       {!activePortfolio ? (

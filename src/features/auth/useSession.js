@@ -6,7 +6,16 @@ export function useSession() {
   const [session, setSession] = useState(undefined);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    // On failure, fall through to signed-out (null) rather than leaving
+    // session === undefined forever, which would hang ProtectedRoute on
+    // an infinite "loading..." state.
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch((err) => {
+        console.error("getSession failed:", err);
+        setSession(null);
+      });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
