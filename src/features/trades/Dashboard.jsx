@@ -6,7 +6,6 @@ import { getTrades } from "./api/tradesApi";
 import { stats } from "./stats";
 import { C } from "./constants";
 import { fmt, fmtPct } from "./format";
-import Kpi from "./components/Kpi";
 import EquityCurveChart from "./components/EquityCurveChart";
 import PnlCalendar from "./components/PnlCalendar";
 import PnlByDayChart from "./components/PnlByDayChart";
@@ -14,11 +13,18 @@ import PnlByAssetChart from "./components/PnlByAssetChart";
 import WinLossPie from "./components/WinLossPie";
 import LongShortBreakdown from "./components/LongShortBreakdown";
 import TradeLogTable from "./components/TradeLogTable";
-import EmptyState from "./components/EmptyState";
 import ImportFlow from "../csvImport/ImportFlow";
 import LogTradeModal from "./LogTradeModal";
 import { useLocale } from "../../lib/i18n/LocaleContext";
 import LocaleToggle from "../shared/LocaleToggle";
+import AppShell from "../../ui/AppShell";
+import MetricCard from "../../ui/MetricCard";
+import EmptyState from "../../ui/EmptyState";
+import Button from "../../ui/Button";
+
+// Responsive grids: cards reflow instead of squishing on narrow screens.
+const kpiGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))", gap: 12, marginBottom: 20 };
+const twoCol = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16, marginBottom: 16 };
 
 export default function Dashboard() {
   const { t } = useLocale();
@@ -27,12 +33,18 @@ export default function Dashboard() {
   const [showImport, setShowImport] = useState(false);
   const [showLogTrade, setShowLogTrade] = useState(false);
   const [trades, setTrades] = useState(null); // null = loading, [] = loaded empty
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    listPortfolios().then((rows) => {
-      setPortfolios(rows);
-      if (rows.length) setActiveId(rows[0].id);
-    });
+    listPortfolios()
+      .then((rows) => {
+        setPortfolios(rows);
+        if (rows.length) setActiveId(rows[0].id);
+      })
+      .catch((e) => {
+        setPortfolios([]);
+        setError(e.message);
+      });
   }, []);
 
   useEffect(() => {
@@ -41,7 +53,13 @@ export default function Dashboard() {
       return;
     }
     setTrades(null);
-    getTrades(activeId).then(setTrades);
+    setError(null);
+    getTrades(activeId)
+      .then(setTrades)
+      .catch((e) => {
+        setTrades([]);
+        setError(e.message);
+      });
   }, [activeId]);
 
   async function refreshTrades() {
@@ -63,34 +81,39 @@ export default function Dashboard() {
     });
   }
 
+  const topRight = (
+    <>
+      <LocaleToggle />
+      <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
+        {t("signOut")}
+      </Button>
+    </>
+  );
+
+  // First paint, before portfolios resolve.
   if (portfolios === null) {
-    return <div style={{ background: C.bg, minHeight: "100vh", color: C.text }}>{t("loading")}</div>;
+    return (
+      <AppShell topRight={topRight}>
+        <EmptyState variant="loading" title={t("loading")} />
+      </AppShell>
+    );
   }
 
   const activePortfolio = portfolios.find((p) => p.id === activeId) ?? null;
   const s = stats(trades ?? []);
 
   return (
-    <div style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "'Inter', system-ui, sans-serif", padding: "24px 20px" }}>
-
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-        <div>
-          <div style={{ fontSize: 11, letterSpacing: 3, color: C.accent, textTransform: "uppercase", marginBottom: 6 }}>{t("tradingJournal")}</div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: -0.5 }}>{t("performanceDashboard")}</h1>
+    <AppShell topRight={topRight}>
+      {/* Page heading */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: 3, color: C.accent, textTransform: "uppercase", marginBottom: 6, fontWeight: 700 }}>
+          {t("tradingJournal")}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <LocaleToggle />
-          <button
-            onClick={() => supabase.auth.signOut()}
-            style={{ padding: "7px 14px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-          >
-            {t("signOut")}
-          </button>
-        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: "-0.03em" }}>{t("performanceDashboard")}</h1>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+      {/* Toolbar: portfolio tabs + primary actions */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
         <PortfolioTabs
           portfolios={portfolios}
           activeId={activeId}
@@ -101,25 +124,21 @@ export default function Dashboard() {
         {activePortfolio && (
           <div style={{ display: "flex", gap: 8 }}>
             {!showImport && (
-              <button
-                onClick={() => setShowImport(true)}
-                style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${C.accent}`, background: C.accentDim, color: C.accent, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-              >
+              <Button variant="primary" size="sm" icon="↑" onClick={() => setShowImport(true)}>
                 {t("importCsv")}
-              </button>
+              </Button>
             )}
-            <button
-              onClick={() => setShowLogTrade(true)}
-              style={{ padding: "7px 16px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setShowLogTrade(true)}>
               {t("logTrade")}
-            </button>
+            </Button>
           </div>
         )}
       </div>
 
       {activePortfolio && showImport && (
-        <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} onImported={refreshTrades} />
+        <div style={{ marginBottom: 16 }}>
+          <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} onImported={refreshTrades} />
+        </div>
       )}
 
       {activePortfolio && showLogTrade && (
@@ -133,47 +152,55 @@ export default function Dashboard() {
         />
       )}
 
+      {/* State machine: no portfolio → error → loading → empty → data */}
       {!activePortfolio ? (
-        <EmptyState title={t("createFirstPortfolio")} subtitle={t("createFirstPortfolioSubtitle")} />
+        <EmptyState
+          title={t("createFirstPortfolio")}
+          subtitle={t("createFirstPortfolioSubtitle")}
+        />
+      ) : error ? (
+        <EmptyState variant="error" title={t("somethingWentWrong")} subtitle={error} />
       ) : trades === null ? (
-        <div style={{ color: C.muted, fontSize: 13 }}>{t("loadingTrades")}</div>
+        <EmptyState variant="loading" title={t("loadingTrades")} />
       ) : trades.length === 0 ? (
-        <EmptyState title={t("noTradesYetIn", activePortfolio.name)} subtitle={t("noTradesYetSubtitle")} />
+        <EmptyState
+          title={t("noTradesYetIn", activePortfolio.name)}
+          subtitle={t("noTradesYetSubtitle")}
+          action={
+            <Button variant="primary" size="sm" icon="↑" onClick={() => setShowImport(true)}>
+              {t("importCsv")}
+            </Button>
+          }
+        />
       ) : (
         <>
           {/* KPI Row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))", gap: 12, marginBottom: 24 }}>
-            <Kpi label={t("totalPnl")} value={fmt(s.totalPnl)} accent={s.totalPnl >= 0 ? C.accent : C.red} />
-            <Kpi label={t("winRate")} value={fmtPct(s.winRate)} sub={t("winsLossesShort", s.wins, s.losses)} accent={s.winRate >= 55 ? C.accent : C.gold} />
-            <Kpi label={t("avgWin")} value={`$${Math.round(s.avgWin)}`} accent={C.accent} />
-            <Kpi label={t("avgLoss")} value={`-$${Math.round(s.avgLoss)}`} accent={C.red} />
-            <Kpi label={t("rrr")} value={s.rrr.toFixed(2)} sub={t("rewardRisk")} accent={s.rrr >= 1 ? C.accent : C.red} />
-            <Kpi label={t("bestStreak")} value={`${s.maxWin}W`} sub={t("worstStreak", s.maxLoss)} accent={C.gold} />
+          <div style={kpiGrid}>
+            <MetricCard label={t("totalPnl")} value={fmt(s.totalPnl)} accent={s.totalPnl >= 0 ? C.accent : C.red} />
+            <MetricCard label={t("winRate")} value={fmtPct(s.winRate)} sub={t("winsLossesShort", s.wins, s.losses)} accent={s.winRate >= 55 ? C.accent : C.gold} />
+            <MetricCard label={t("avgWin")} value={`$${Math.round(s.avgWin)}`} accent={C.accent} />
+            <MetricCard label={t("avgLoss")} value={`-$${Math.round(s.avgLoss)}`} accent={C.red} />
+            <MetricCard label={t("rrr")} value={s.rrr.toFixed(2)} sub={t("rewardRisk")} accent={s.rrr >= 1 ? C.accent : C.red} />
+            <MetricCard label={t("bestStreak")} value={`${s.maxWin}W`} sub={t("worstStreak", s.maxLoss)} accent={C.gold} />
           </div>
 
           <EquityCurveChart equity={s.equity} />
 
           <PnlCalendar byDay={s.byDay} />
 
-          {/* P&L by Day + By Asset */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div style={twoCol}>
             <PnlByDayChart byDay={s.byDay} />
             <PnlByAssetChart byAsset={s.byAsset} />
           </div>
 
-          {/* Win/Loss Pie + Long/Short */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div style={twoCol}>
             <WinLossPie wins={s.wins} losses={s.losses} avgWin={s.avgWin} avgLoss={s.avgLoss} />
             <LongShortBreakdown longs={s.longs} shorts={s.shorts} />
           </div>
 
           <TradeLogTable trades={trades} />
-
-          <div style={{ textAlign: "center", marginTop: 20, fontSize: 11, color: C.muted }}>
-            {activePortfolio.name}: {t("tradesSuffix", trades.length)}
-          </div>
         </>
       )}
-    </div>
+    </AppShell>
   );
 }

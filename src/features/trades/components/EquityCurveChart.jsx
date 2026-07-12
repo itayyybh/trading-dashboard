@@ -1,27 +1,59 @@
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from "recharts";
-import { C } from "../constants";
-import SectionTitle from "./SectionTitle";
+import { C, font } from "../../../ui/theme";
+import ChartCard from "../../../ui/ChartCard";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
+
+const tooltipStyle = {
+  background: C.panel2,
+  border: `1px solid ${C.border}`,
+  borderRadius: 10,
+  fontFamily: font.mono,
+  fontSize: 12,
+};
 
 export default function EquityCurveChart({ equity }) {
   const { t } = useLocale();
 
   return (
-    <div dir="ltr" style={{ background:C.panel, border:`1px solid ${C.border}`, borderRadius:12, padding:20, marginBottom:16 }}>
-      <SectionTitle>{t("equityCurve")}</SectionTitle>
-      <ResponsiveContainer width="100%" height={180}>
-        <LineChart data={equity}>
-          <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-          <XAxis dataKey="i" tick={{ fill:C.muted, fontSize:10 }} label={{ value:t("tradeNumber"), position:"insideBottomRight", fill:C.muted, fontSize:10 }} />
-          <YAxis tick={{ fill:C.muted, fontSize:10 }} tickFormatter={v=>`$${v}`} />
-          <Tooltip contentStyle={{ background:C.panel, border:`1px solid ${C.border}`, borderRadius:8 }}
-            formatter={v=>[`$${v}`, t("cumulativePnl")]} labelFormatter={l=>`${t("tradeNumber")} ${l}`} />
-          <ReferenceLine y={0} stroke={C.muted} strokeDasharray="4 2" />
-          <Line type="monotone" dataKey="value" stroke={C.accent} strokeWidth={2} dot={false} activeDot={{ r:4, fill:C.accent }} />
-        </LineChart>
+    <ChartCard dir="ltr" title={t("equityCurve")} style={{ marginBottom: 16 }}>
+      <ResponsiveContainer width="100%" height={200}>
+        <AreaChart data={equity} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
+          <defs>
+            <linearGradient id="equityFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={C.accent} stopOpacity={0.28} />
+              <stop offset="100%" stopColor={C.accent} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke={C.borderSoft} vertical={false} />
+          <XAxis dataKey="i" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
+          <YAxis
+            tick={{ fill: C.muted, fontSize: 10, fontFamily: font.mono }}
+            tickFormatter={(v) => `$${v}`}
+            axisLine={false}
+            tickLine={false}
+            width={52}
+          />
+          <Tooltip
+            contentStyle={tooltipStyle}
+            labelStyle={{ color: C.muted }}
+            itemStyle={{ color: C.accent, fontWeight: 700 }}
+            formatter={(v) => [`$${v}`, t("cumulativePnl")]}
+            labelFormatter={(l) => `${t("tradeNumber")} ${l}`}
+          />
+          <ReferenceLine y={0} stroke={C.border} strokeDasharray="4 2" />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={C.accent}
+            strokeWidth={2}
+            fill="url(#equityFill)"
+            dot={false}
+            activeDot={{ r: 4, fill: C.accent, stroke: C.bg, strokeWidth: 2 }}
+          />
+        </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </ChartCard>
   );
 }

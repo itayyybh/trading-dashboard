@@ -1,12 +1,90 @@
-* {
-  margin: 0;
+:root {
+  /* Font tokens, also exposed to JS via src/ui/theme.js */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, "Menlo", monospace;
+
+  --dash-bg: #0a0d14;
+  --dash-text: #e6ebf2;
 }
 
-html, body, #root {
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
   min-height: 100%;
 }
 
 body {
-  /* matches C.bg in features/trades/constants.js - avoids a white flash/border before the app mounts */
-  background: #0a0d14;
+  /* matches C.bg - avoids a white flash/border before the app mounts.
+     The layered radial glows give the dark canvas depth without gradients. */
+  background-color: var(--dash-bg);
+  background-image:
+    radial-gradient(900px 500px at 78% -8%, rgba(42, 167, 127, 0.05), transparent 60%),
+    radial-gradient(700px 500px at 8% 4%, rgba(121, 134, 203, 0.035), transparent 55%);
+  background-attachment: fixed;
+  color: var(--dash-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular figures everywhere numbers matter, so columns of P&L line up. */
+.dash-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Consistent, visible keyboard focus without the default heavy outline. */
+:focus-visible {
+  outline: 2px solid rgba(42, 167, 127, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background: rgba(42, 167, 127, 0.26);
+  color: #fff;
+}
+
+/* Slim, dark scrollbars that fit the terminal aesthetic. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #29324a transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #232b40;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2f3a55;
+  background-clip: content-box;
+}
+
+/* Native form controls adopt the dark theme (dropdowns, checkboxes). */
+select,
+input,
+button {
+  font-family: inherit;
+}
+select option {
+  background: #10141f;
+  color: #e6ebf2;
+}
+input[type="checkbox"] {
+  accent-color: #2aa77f;
 }

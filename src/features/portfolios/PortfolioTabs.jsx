@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { C } from "../trades/constants";
+import { C, radius } from "../../ui/theme";
+import Button from "../../ui/Button";
 import { useLocale } from "../../lib/i18n/LocaleContext";
 
 export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate, onDelete }) {
@@ -19,25 +20,34 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
   }
 
   return (
-    <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
       {portfolios.map((p) => {
         const active = activeId === p.id;
-        const tone = active ? C.accent : C.muted;
         return (
           <div
             key={p.id}
             style={{
-              display: "flex", alignItems: "center", gap: 4,
-              padding: "5px 6px 5px 16px", borderRadius: 20,
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              padding: "4px 4px 4px 14px",
+              borderRadius: radius.pill,
               border: `1px solid ${active ? C.accent : C.border}`,
               background: active ? C.accentDim : "transparent",
+              transition: "background 150ms, border-color 150ms",
             }}
           >
             <button
               onClick={() => onSelect(p.id)}
               style={{
-                background: "transparent", border: "none", padding: 0,
-                color: tone, fontSize: 12, fontWeight: 600, cursor: "pointer", letterSpacing: 0.5,
+                background: "transparent",
+                border: "none",
+                padding: 0,
+                color: active ? C.accent : C.textDim,
+                fontSize: 12.5,
+                fontWeight: 600,
+                cursor: "pointer",
+                letterSpacing: 0.2,
               }}
             >
               {p.name}
@@ -46,8 +56,15 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
               onClick={() => onDelete(p.id)}
               title={`${t("delete")} ${p.name}`}
               style={{
-                background: "transparent", border: "none", cursor: "pointer",
-                color: tone, opacity: 0.7, fontSize: 14, lineHeight: 1, padding: "2px 6px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: active ? C.accent : C.muted,
+                opacity: 0.6,
+                fontSize: 15,
+                lineHeight: 1,
+                padding: "2px 7px",
+                borderRadius: radius.pill,
               }}
             >
               ×
@@ -63,22 +80,35 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t("portfolioNamePlaceholder")}
-            style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 20, padding: "6px 12px", color: C.text, fontSize: 12 }}
+            style={{
+              background: C.bgElevated,
+              border: `1px solid ${C.border}`,
+              borderRadius: radius.pill,
+              padding: "6px 14px",
+              color: C.text,
+              fontSize: 12,
+              outline: "none",
+            }}
           />
-          <button
-            type="submit"
-            disabled={pending}
-            style={{ padding: "7px 14px", borderRadius: 20, border: `1px solid ${C.accent}`, background: C.accentDim, color: C.accent, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-          >
+          <Button type="submit" variant="primary" size="sm" disabled={pending}>
             {pending ? "…" : t("add")}
-          </button>
+          </Button>
         </form>
       ) : (
         <button
           onClick={() => setAdding(true)}
-          style={{ padding: "7px 16px", borderRadius: 20, border: `1px dashed ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+          style={{
+            padding: "6px 14px",
+            borderRadius: radius.pill,
+            border: `1px dashed ${C.border}`,
+            background: "transparent",
+            color: C.muted,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
         >
-          {t("newPortfolio")}
+          + {t("newPortfolio")}
         </button>
       )}
     </div>

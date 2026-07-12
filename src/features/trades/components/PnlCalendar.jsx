@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { C } from "../constants";
+import { C, font } from "../../../ui/theme";
+import ChartCard from "../../../ui/ChartCard";
 import { fmt } from "../format";
-import SectionTitle from "./SectionTitle";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
 // Parse a "YYYY-MM-DD" string into numeric parts by hand. We avoid new Date(str)
@@ -77,7 +77,7 @@ export default function PnlCalendar({ byDay }) {
     borderRadius: 8,
     border: `1px solid ${C.border}`,
     background: "transparent",
-    color: C.muted,
+    color: C.textDim,
     fontSize: 15,
     lineHeight: 1,
     cursor: "pointer",
@@ -86,25 +86,21 @@ export default function PnlCalendar({ byDay }) {
     justifyContent: "center",
   };
 
-  return (
-    <div
-      dir="ltr"
-      style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}
-    >
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <SectionTitle>{t("pnlCalendar")}</SectionTitle>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: monthTotal >= 0 ? C.accent : C.red, fontFamily: "'SF Mono', monospace" }}>
-            {t("monthTotal", fmt(monthTotal))}
-          </span>
-          <button type="button" aria-label={t("prevMonth")} onClick={() => shiftMonth(-1)} style={navBtn}>‹</button>
-          <span style={{ fontSize: 13, fontWeight: 700, minWidth: 128, textAlign: "center", color: C.text }}>
-            {monthNames[view.month]} {view.year}
-          </span>
-          <button type="button" aria-label={t("nextMonth")} onClick={() => shiftMonth(1)} style={navBtn}>›</button>
-        </div>
-      </div>
+  const header = (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: monthTotal >= 0 ? C.accent : C.red, fontFamily: font.mono, fontVariantNumeric: "tabular-nums" }}>
+        {t("monthTotal", fmt(monthTotal))}
+      </span>
+      <button type="button" aria-label={t("prevMonth")} onClick={() => shiftMonth(-1)} style={navBtn}>‹</button>
+      <span style={{ fontSize: 13, fontWeight: 700, minWidth: 128, textAlign: "center", color: C.text }}>
+        {monthNames[view.month]} {view.year}
+      </span>
+      <button type="button" aria-label={t("nextMonth")} onClick={() => shiftMonth(1)} style={navBtn}>›</button>
+    </div>
+  );
 
+  return (
+    <ChartCard dir="ltr" title={t("pnlCalendar")} right={header} style={{ marginBottom: 16 }}>
       {/* Weekday header row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6 }}>
         {weekdayNames.map((w) => (
@@ -124,8 +120,8 @@ export default function PnlCalendar({ byDay }) {
           const hasTrades = !!entry;
           const profit = hasTrades && entry.pnl >= 0;
 
-          let background = C.bg;
-          let borderColor = C.border;
+          let background = C.bgElevated;
+          let borderColor = C.borderSoft;
           if (hasTrades) {
             const intensity = monthMaxAbs > 0 ? 0.35 + 0.65 * (Math.abs(entry.pnl) / monthMaxAbs) : 0.7;
             const base = profit ? C.accent : C.red;
@@ -139,7 +135,7 @@ export default function PnlCalendar({ byDay }) {
               title={hasTrades ? t("dayTooltip", iso, fmt(entry.pnl), entry.count) : `${iso} · ${t("noTradeDay")}`}
               style={{
                 aspectRatio: "1 / 1",
-                borderRadius: 6,
+                borderRadius: 7,
                 background,
                 border: `1px solid ${borderColor}`,
                 display: "flex",
@@ -150,7 +146,7 @@ export default function PnlCalendar({ byDay }) {
                 boxSizing: "border-box",
               }}
             >
-              <span style={{ fontSize: 10, fontWeight: 600, color: hasTrades ? "#0a0d14" : C.muted, opacity: hasTrades ? 0.9 : 0.7 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: hasTrades ? "#04120e" : C.muted, opacity: hasTrades ? 0.9 : 0.7 }}>
                 {day}
               </span>
             </div>
@@ -159,12 +155,12 @@ export default function PnlCalendar({ byDay }) {
       </div>
 
       {/* Legend */}
-      <div style={{ display: "flex", gap: 16, marginTop: 14, fontSize: 11, color: C.muted }}>
+      <div style={{ display: "flex", gap: 16, marginTop: 16, fontSize: 11, color: C.muted }}>
         <LegendSwatch color={C.accent} label={t("profitDay")} />
         <LegendSwatch color={C.red} label={t("lossDay")} />
-        <LegendSwatch color={C.bg} borderColor={C.border} label={t("noTradeDay")} />
+        <LegendSwatch color={C.bgElevated} borderColor={C.borderSoft} label={t("noTradeDay")} />
       </div>
-    </div>
+    </ChartCard>
   );
 }
 
