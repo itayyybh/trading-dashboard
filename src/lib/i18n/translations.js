@@ -43,6 +43,7 @@ export const translations = {
 
     // Section titles
     equityCurve: "Equity Curve",
+    pnlCalendar: "Daily P&L Calendar",
     pnlByDay: "P&L by Day",
     pnlByAsset: "P&L by Asset",
     winLossSplit: "Win / Loss Split",
@@ -125,6 +126,17 @@ export const translations = {
     unrecognizedDirection: "unrecognized direction",
     missingSymbol: "missing symbol",
     invalidPnl: "invalid P&L",
+
+    // P&L calendar
+    monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    weekdayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    prevMonth: "Previous month",
+    nextMonth: "Next month",
+    profitDay: "Profit",
+    lossDay: "Loss",
+    noTradeDay: "No trades",
+    dayTooltip: (date, pnl, count) => `${date} · ${pnl} · ${count} trade${count === 1 ? "" : "s"}`,
+    monthTotal: (pnl) => `Month: ${pnl}`,
   },
   he: {
     // Auth
@@ -166,6 +178,7 @@ export const translations = {
 
     // Section titles
     equityCurve: "עקומת ההון",
+    pnlCalendar: "לוח שנה רווח/הפסד יומי",
     pnlByDay: "רווח/הפסד לפי יום",
     pnlByAsset: "רווח/הפסד לפי נכס",
     winLossSplit: "התפלגות הצלחות/הפסדים",
@@ -248,5 +261,16 @@ export const translations = {
     unrecognizedDirection: "כיוון לא מוכר",
     missingSymbol: "נכס חסר",
     invalidPnl: "רווח/הפסד לא תקין",
+
+    // P&L calendar
+    monthNames: ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"],
+    weekdayNames: ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"],
+    prevMonth: "החודש הקודם",
+    nextMonth: "החודש הבא",
+    profitDay: "רווח",
+    lossDay: "הפסד",
+    noTradeDay: "אין עסקאות",
+    dayTooltip: (date, pnl, count) => `${date} · ${pnl} · ${count} עסקאות`,
+    monthTotal: (pnl) => `החודש: ${pnl}`,
   },
 };

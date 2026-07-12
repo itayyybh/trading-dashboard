@@ -24,12 +24,15 @@ export function stats(trades) {
   const longs  = trades.filter(t=>t.dir==="Long");
   const shorts = trades.filter(t=>t.dir==="Short");
 
-  // by day PnL
+  // by day PnL (count kept alongside pnl for the calendar's per-day tooltip;
+  // PnlByDayChart only reads date/pnl, so the extra field is harmless there)
   const dayMap = {};
   trades.forEach(t => {
-    dayMap[t.date] = (dayMap[t.date]||0)+t.pnl;
+    if (!dayMap[t.date]) dayMap[t.date] = { pnl: 0, count: 0 };
+    dayMap[t.date].pnl += t.pnl;
+    dayMap[t.date].count += 1;
   });
-  const byDay = Object.entries(dayMap).map(([date,pnl])=>({ date, pnl }));
+  const byDay = Object.entries(dayMap).map(([date,v])=>({ date, pnl: v.pnl, count: v.count }));
 
   // win/loss streak
   let maxWin=0, maxLoss=0, curWin=0, curLoss=0;

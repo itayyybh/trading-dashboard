@@ -8,6 +8,7 @@ import { C } from "./constants";
 import { fmt, fmtPct } from "./format";
 import Kpi from "./components/Kpi";
 import EquityCurveChart from "./components/EquityCurveChart";
+import PnlCalendar from "./components/PnlCalendar";
 import PnlByDayChart from "./components/PnlByDayChart";
 import PnlByAssetChart from "./components/PnlByAssetChart";
 import WinLossPie from "./components/WinLossPie";
@@ -151,6 +152,8 @@ export default function Dashboard() {
           </div>
 
           <EquityCurveChart equity={s.equity} />
+
+          <PnlCalendar byDay={s.byDay} />
 
           {/* P&L by Day + By Asset */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
