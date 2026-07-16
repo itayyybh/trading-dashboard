@@ -1,32 +1,32 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { C } from "../trades/constants";
 import { parseCsvPreview, parseCsvFull } from "./parseCsv";
-import { UNIFIED_FIELDS, applyMapping, mapRow, guessMapping } from "./applyMapping";
+import { UNIFIED_FIELDS } from "./applyMapping";
+import { detectParser } from "./engine/detect";
+import { createGenericMappingAdapter } from "./parsers"; // importing also registers broker parsers
 import { listMappingTemplates, saveMappingTemplate } from "./mappingTemplatesApi";
 import { importTrades, listImportBatches, DuplicateFileError } from "./importApi";
 import { hashFile } from "./hashFile";
 import { useLocale } from "../../lib/i18n/LocaleContext";
+import SelectStep from "./components/SelectStep";
+import MappingStep from "./components/MappingStep";
+import ReviewStep from "./components/ReviewStep";
+import DoneStep from "./components/DoneStep";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_ROWS = 10000;
 const MAX_MB = MAX_FILE_BYTES / 1024 / 1024;
 
-const selectStyle = {
-  background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8,
-  padding: "6px 8px", color: C.text, fontSize: 12, minWidth: 160,
-};
-
 export default function ImportFlow({ portfolioId, onImported, onClose }) {
   const { t } = useLocale();
-  const fileInputRef = useRef(null);
   const [templates, setTemplates] = useState([]);
 
-  // "select" -> "mapping" (one step per queued file) -> "review" -> "done"
+  // "select" -> "mapping" (only for files needing manual mapping) -> "review" -> "done"
   const [step, setStep] = useState("select");
   const [queue, setQueue] = useState([]); // [{ file, hash }] - files still to map
   const [queueIndex, setQueueIndex] = useState(0);
-  const [skippedFiles, setSkippedFiles] = useState([]); // pre-filtered at selection time
-  const [processedFiles, setProcessedFiles] = useState([]); // mapped + validated, not yet committed
+  const [skippedFiles, setSkippedFiles] = useState([]); // pre-filtered (bad type/size/dup/too many rows)
+  const [processedFiles, setProcessedFiles] = useState([]); // parsed + validated, not yet committed
 
   // Mapping state for the file currently at queue[queueIndex]
   const [headers, setHeaders] = useState([]);
@@ -34,6 +34,7 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
   const [mapping, setMapping] = useState({});
   const [brokerLabel, setBrokerLabel] = useState("");
   const [saveAsTemplate, setSaveAsTemplate] = useState(true);
+  const [detection, setDetection] = useState(null); // detectParser() result for the current file
 
   const [error, setError] = useState(null);
   const [pending, setPending] = useState(false);
@@ -43,12 +44,75 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
     listMappingTemplates().then(setTemplates).catch(() => {});
   }, []);
 
-  async function loadFileForMapping(file) {
-    const { headers, rows } = await parseCsvPreview(file, 20);
-    setHeaders(headers);
-    setPreviewRows(rows);
-    setMapping(guessMapping(headers));
+  // Walk the queue from `startIndex`, auto-importing every file a broker parser
+  // recognizes and stopping at the first file that needs manual mapping. Runs of
+  // recognized files are parsed without ever showing the mapping UI ("import
+  // immediately"); the loop stays paused on a manual file until the user confirms
+  // it, which calls back in to resume. Accumulators are passed in (not read from
+  // state) so a single pass stays consistent across awaits.
+  async function processQueueFrom(startIndex, q, processedInit, skippedInit) {
+    const processed = [...processedInit];
+    const skipped = [...skippedInit];
+
+    for (let i = startIndex; i < q.length; i += 1) {
+      const { file, hash } = q[i];
+      const rawText = await file.text();
+      const { headers: fileHeaders, rows: preview } = await parseCsvPreview(file, 20);
+      const det = detectParser(fileHeaders, preview, rawText);
+
+      if (det.kind === "recognized") {
+        try {
+          const { rows } = await parseCsvFull(file);
+          const { valid, invalid } = det.parser.parse(rows, rawText);
+          const total = valid.length + invalid.length;
+          if (total > MAX_ROWS) {
+            skipped.push({ filename: file.name, reason: "rowsTooMany", count: total });
+            continue;
+          }
+          processed.push({
+            filename: file.name, fileHash: hash, file,
+            validTrades: valid, invalidCount: invalid.length, totalCount: total,
+            mappingTemplateId: null, detectedLabel: det.parser.label, source: "auto",
+          });
+          continue;
+        } catch {
+          // Detection was confident but parsing failed - fall back to manual
+          // mapping for this file rather than dropping it.
+          pauseForManualMapping(i, fileHeaders, preview, { ...det, kind: "generic" }, processed, skipped);
+          return;
+        }
+      }
+
+      // A known-but-unimportable file (e.g. the wrong export from a supported
+      // broker): report it with specific guidance instead of a mapping dead-end.
+      if (det.kind === "advisory") {
+        skipped.push({ filename: file.name, reason: "advisory", messageKey: det.advisory.messageKey });
+        continue;
+      }
+
+      // "generic" or "unrecognized" -> the user maps this file by hand.
+      pauseForManualMapping(i, fileHeaders, preview, det, processed, skipped);
+      return;
+    }
+
+    // Reached the end with nothing left to map.
+    setSkippedFiles(skipped);
+    setProcessedFiles(processed);
+    setStep("review");
+  }
+
+  // Commit the in-progress accumulators to state and show the mapping screen for
+  // the file at `index`, pre-filling the guessed mapping from detection.
+  function pauseForManualMapping(index, fileHeaders, preview, det, processed, skipped) {
+    setQueueIndex(index);
+    setHeaders(fileHeaders);
+    setPreviewRows(preview);
+    setMapping(det.plausibility.guess);
     setBrokerLabel("");
+    setDetection(det);
+    setProcessedFiles(processed);
+    setSkippedFiles(skipped);
+    setStep("mapping");
   }
 
   async function handleFilesSelected(e) {
@@ -81,16 +145,12 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
       nextQueue.push({ file: f, hash });
     }
 
-    setSkippedFiles(skipped);
     setQueue(nextQueue);
     setQueueIndex(0);
-    setProcessedFiles([]);
-
-    if (nextQueue.length > 0) {
-      await loadFileForMapping(nextQueue[0].file);
-      setStep("mapping");
-    } else {
-      setStep("review");
+    try {
+      await processQueueFrom(0, nextQueue, [], skipped);
+    } catch (err) {
+      setError(err.message);
     }
     setPending(false);
   }
@@ -123,7 +183,7 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
         return;
       }
 
-      const { valid, invalid } = applyMapping(rows, mapping);
+      const { valid, invalid } = createGenericMappingAdapter(mapping).parse(rows);
 
       let mappingTemplateId = null;
       if (saveAsTemplate && brokerLabel.trim()) {
@@ -132,26 +192,37 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
         setTemplates((prev) => [saved, ...prev]);
       }
 
-      setProcessedFiles((prev) => [...prev, {
-        filename: currentFile.name,
-        fileHash: queue[queueIndex].hash,
-        validTrades: valid,
-        invalidCount: invalid.length,
-        totalCount: rows.length,
-        mappingTemplateId,
-      }]);
+      const entry = {
+        filename: currentFile.name, fileHash: queue[queueIndex].hash, file: currentFile,
+        validTrades: valid, invalidCount: invalid.length, totalCount: rows.length,
+        mappingTemplateId, detectedLabel: null, source: "manual",
+      };
 
-      if (!isLastFile) {
-        const nextIndex = queueIndex + 1;
-        setQueueIndex(nextIndex);
-        await loadFileForMapping(queue[nextIndex].file);
-      } else {
-        setStep("review");
-      }
+      // Continue auto-processing any remaining files after this manual one.
+      await processQueueFrom(queueIndex + 1, queue, [...processedFiles, entry], skippedFiles);
     } catch (e) {
       setError(e.message);
     }
 
+    setPending(false);
+  }
+
+  // "Map manually" on the review screen: pull an auto-detected file back out and
+  // route it through the manual mapping flow instead.
+  async function remapFile(pf) {
+    setPending(true);
+    setError(null);
+    try {
+      const remaining = processedFiles.filter((p) => p !== pf);
+      const rawText = await pf.file.text();
+      const { headers: fileHeaders, rows: preview } = await parseCsvPreview(pf.file, 20);
+      const det = detectParser(fileHeaders, preview, rawText);
+      setQueue([{ file: pf.file, hash: pf.fileHash }]);
+      // Force the manual path even though detection recognized it - the user asked.
+      pauseForManualMapping(0, fileHeaders, preview, { ...det, kind: det.kind === "recognized" ? "generic" : det.kind }, remaining, skippedFiles);
+    } catch (e) {
+      setError(e.message);
+    }
     setPending(false);
   }
 
@@ -199,6 +270,7 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
     setPreviewRows([]);
     setMapping({});
     setBrokerLabel("");
+    setDetection(null);
     setError(null);
     setDoneSummary(null);
   }
@@ -206,6 +278,8 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
   function skippedFileLabel(s) {
     if (s.reason === "duplicate") return t("fileSkippedDuplicate", s.filename, new Date(s.date).toLocaleDateString());
     if (s.reason === "tooLarge") return t("fileSkippedTooLarge", s.filename, MAX_MB);
+    if (s.reason === "rowsTooMany") return t("rowsTooMany", s.count, MAX_ROWS);
+    if (s.reason === "advisory") return t(s.messageKey, s.filename);
     return t("fileSkippedInvalidType", s.filename);
   }
 
@@ -217,205 +291,45 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
       </div>
 
       {step === "done" && doneSummary ? (
-        <div>
-          <div style={{ color: C.accent, fontWeight: 700, marginBottom: 6 }}>
-            {t("importedAcrossFiles", doneSummary.imported, doneSummary.fileCount)}
-          </div>
-          {doneSummary.skippedRows > 0 && (
-            <div style={{ color: C.gold, fontSize: 13, marginBottom: 6 }}>{t("skippedRows", doneSummary.skippedRows)}</div>
-          )}
-          {doneSummary.failed.length > 0 && (
-            <div style={{ color: C.red, fontSize: 13, marginBottom: 12 }}>
-              {doneSummary.failed.map((f) => (
-                <div key={f.filename}>{f.reason === "duplicate" ? t("fileSkippedDuplicate", f.filename, t("importLabel")) : `${f.filename}: ${f.detail}`}</div>
-              ))}
-            </div>
-          )}
-          <button onClick={reset} style={{ padding: "7px 14px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 12, cursor: "pointer" }}>
-            {t("importAnotherFile")}
-          </button>
-        </div>
+        <DoneStep t={t} doneSummary={doneSummary} onReset={reset} />
       ) : step === "select" ? (
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            multiple
-            onChange={handleFilesSelected}
-            style={{ display: "none" }}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={pending}
-            style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "10px 20px", borderRadius: 20, border: `1px solid ${C.accent}`,
-              background: C.accentDim, color: C.accent, fontSize: 13, fontWeight: 700, cursor: pending ? "default" : "pointer",
-            }}
-          >
-            <span style={{ fontSize: 16 }}>↑</span> {t("chooseCsvFile")}
-          </button>
-          <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>{t("csvOnlyUpTo", MAX_MB)}</div>
-          {error && <div style={{ color: C.red, fontSize: 12, marginTop: 10 }}>{error}</div>}
-        </div>
+        <SelectStep t={t} pending={pending} error={error} maxMb={MAX_MB} onFilesSelected={handleFilesSelected} />
       ) : step === "mapping" ? (
-        <div>
-          {queue.length > 1 && (
-            <div style={{ fontSize: 11, color: C.accent, fontWeight: 700, marginBottom: 10 }}>
-              {t("fileProgress", queueIndex + 1, queue.length)} — {currentFile?.name}
-            </div>
-          )}
-
-          {templates.length > 0 && (
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, color: C.muted, marginRight: 8 }}>{t("useSavedMapping")}</label>
-              <select style={selectStyle} defaultValue="" onChange={(e) => e.target.value && applyTemplate(e.target.value)}>
-                <option value="">{t("chooseTemplateOption")}</option>
-                {templates.map((template) => (
-                  <option key={template.id} value={template.id}>{template.broker_label}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>
-            {t("autoDetectedNote")}
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-            {UNIFIED_FIELDS.map((field) => (
-              <div key={field.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <label style={{ fontSize: 12, color: C.muted }}>
-                  {t(field.labelKey)}{field.required && <span style={{ color: C.red }}> *</span>}
-                </label>
-                <select
-                  style={selectStyle}
-                  value={mapping[field.key] ?? ""}
-                  onChange={(e) => setFieldMapping(field.key, e.target.value)}
-                >
-                  <option value="">— none —</option>
-                  {headers.map((h) => (
-                    <option key={h} value={h}>{h}</option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14 }}>
-            <input
-              placeholder={t("brokerNamePlaceholder")}
-              value={brokerLabel}
-              onChange={(e) => setBrokerLabel(e.target.value)}
-              style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "6px 10px", color: C.text, fontSize: 12, flex: 1 }}
-            />
-            <label style={{ fontSize: 12, color: C.muted, display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-              <input type="checkbox" checked={saveAsTemplate} onChange={(e) => setSaveAsTemplate(e.target.checked)} />
-              {t("saveAsTemplateLabel")}
-            </label>
-          </div>
-
-          <div style={{ overflowX: "auto", marginBottom: 14 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
-              <thead>
-                <tr style={{ color: C.muted, textAlign: "left" }}>
-                  <th style={{ padding: "4px 8px" }}>#</th>
-                  <th style={{ padding: "4px 8px" }}>{t("date")}</th>
-                  <th style={{ padding: "4px 8px" }}>{t("dirShort")}</th>
-                  <th style={{ padding: "4px 8px" }}>{t("symbolField")}</th>
-                  <th style={{ padding: "4px 8px" }}>{t("pnl")}</th>
-                  <th style={{ padding: "4px 8px" }}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {previewRows.slice(0, 5).map((row, i) => {
-                  const result = mapRow(row, mapping);
-                  return (
-                    <tr key={i} style={{ borderTop: `1px solid ${C.border}` }}>
-                      <td style={{ padding: "4px 8px", color: C.muted }}>{i + 1}</td>
-                      {result.ok ? (
-                        <>
-                          <td style={{ padding: "4px 8px" }}>{result.trade.trade_date}</td>
-                          <td style={{ padding: "4px 8px" }}>{result.trade.direction}</td>
-                          <td style={{ padding: "4px 8px" }}>{result.trade.symbol}</td>
-                          <td style={{ padding: "4px 8px" }}>{result.trade.pnl}</td>
-                          <td style={{ padding: "4px 8px", color: C.accent }}>{t("statusOk")}</td>
-                        </>
-                      ) : (
-                        <td colSpan={4} style={{ padding: "4px 8px", color: C.red }}>{result.errors.map((code) => t(code)).join(", ")}</td>
-                      )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {error && <div style={{ color: C.red, fontSize: 12, marginBottom: 10 }}>{error}</div>}
-
-          <div style={{ display: "flex", gap: 10 }}>
-            <button
-              onClick={handleConfirmFile}
-              disabled={!requiredFieldsMapped || pending}
-              style={{
-                padding: "8px 18px", borderRadius: 20, border: "none",
-                background: !requiredFieldsMapped || pending ? C.border : C.accentDim,
-                color: C.accent, fontWeight: 700, fontSize: 13,
-                cursor: !requiredFieldsMapped || pending ? "default" : "pointer",
-              }}
-            >
-              {pending ? t("importing") : isLastFile ? t("reviewImportLabel") : t("nextFileLabel")}
-            </button>
-            <button onClick={reset} style={{ padding: "8px 18px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, cursor: "pointer" }}>
-              {t("chooseDifferentFile")}
-            </button>
-          </div>
-        </div>
+        <MappingStep
+          t={t}
+          detection={detection}
+          templates={templates}
+          queue={queue}
+          queueIndex={queueIndex}
+          currentFile={currentFile}
+          headers={headers}
+          previewRows={previewRows}
+          mapping={mapping}
+          brokerLabel={brokerLabel}
+          saveAsTemplate={saveAsTemplate}
+          requiredFieldsMapped={requiredFieldsMapped}
+          pending={pending}
+          error={error}
+          isLastFile={isLastFile}
+          onApplyTemplate={applyTemplate}
+          onSetFieldMapping={setFieldMapping}
+          onSetBrokerLabel={setBrokerLabel}
+          onSetSaveAsTemplate={setSaveAsTemplate}
+          onConfirm={handleConfirmFile}
+          onReset={reset}
+        />
       ) : (
-        // step === "review"
-        <div>
-          {processedFiles.length > 0 && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 6, textTransform: "uppercase" }}>{t("filesReadyHeading")}</div>
-              {processedFiles.map((pf) => (
-                <div key={pf.filename} style={{ fontSize: 12, color: C.text, padding: "4px 0" }}>
-                  {t("fileRowsSummary", pf.filename, pf.validTrades.length, pf.totalCount)}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {skippedFiles.length > 0 && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, marginBottom: 6, textTransform: "uppercase" }}>{t("filesSkippedHeading")}</div>
-              {skippedFiles.map((s) => (
-                <div key={s.filename} style={{ fontSize: 12, color: C.gold, padding: "4px 0" }}>{skippedFileLabel(s)}</div>
-              ))}
-            </div>
-          )}
-
-          {error && <div style={{ color: C.red, fontSize: 12, marginBottom: 10 }}>{error}</div>}
-
-          <div style={{ display: "flex", gap: 10 }}>
-            {processedFiles.length > 0 && (
-              <button
-                onClick={handleImportAll}
-                disabled={pending}
-                style={{
-                  padding: "8px 18px", borderRadius: 20, border: "none",
-                  background: pending ? C.border : C.accentDim,
-                  color: C.accent, fontWeight: 700, fontSize: 13, cursor: pending ? "default" : "pointer",
-                }}
-              >
-                {pending ? t("importing") : t("importAllLabel")}
-              </button>
-            )}
-            <button onClick={reset} style={{ padding: "8px 18px", borderRadius: 20, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, cursor: "pointer" }}>
-              {t("chooseDifferentFile")}
-            </button>
-          </div>
-        </div>
+        <ReviewStep
+          t={t}
+          processedFiles={processedFiles}
+          skippedFiles={skippedFiles}
+          pending={pending}
+          error={error}
+          onImportAll={handleImportAll}
+          onReset={reset}
+          onRemapFile={remapFile}
+          skippedFileLabel={skippedFileLabel}
+        />
       )}
     </div>
   );

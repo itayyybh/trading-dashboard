@@ -114,6 +114,16 @@ export const translations = {
     fileSkippedTooLarge: (filename, mb) => `${filename} — larger than ${mb}MB`,
     importedAcrossFiles: (imported, fileCount) => `Imported ${imported} rows across ${fileCount} file(s).`,
 
+    // Intelligent import / broker detection
+    autoDetectedBadge: (label) => `${label} · auto-detected`,
+    mapManuallyInstead: "Map manually",
+    noBrokerMatchedNote: "No broker was auto-detected — map the columns below.",
+    notTradeFileTitle: "This doesn't look like a trade file",
+    notTradeFileHint: "DASH imports trade history — a date, direction, symbol and P&L per trade. If this is a holdings or balance export, it can't be imported as trades. You can still try mapping the columns manually below.",
+    importFileHint: "Tip: upload the export with profit/loss per trade — e.g. TradingView's “Balance history”.",
+    tvWrongExportOrders: (filename) => `${filename} — this is your TradingView order history (fills only, no P&L). Export “Balance history” instead — it's the one with realized profit/loss.`,
+    tvWrongExportJournal: (filename) => `${filename} — this is a TradingView activity log, not trade data. Export “Balance history” instead — it's the one with realized profit/loss.`,
+
     // Unified field labels (CSV mapping UI)
     symbolField: "Symbol",
     directionField: "Direction",
@@ -251,6 +261,16 @@ export const translations = {
     fileSkippedInvalidType: (filename) => `${filename} — לא קובץ CSV`,
     fileSkippedTooLarge: (filename, mb) => `${filename} — גדול מ-${mb}MB`,
     importedAcrossFiles: (imported, fileCount) => `יובאו ${imported} שורות מתוך ${fileCount} קבצים.`,
+
+    // Intelligent import / broker detection
+    autoDetectedBadge: (label) => `${label} · זוהה אוטומטית`,
+    mapManuallyInstead: "מיפוי ידני",
+    noBrokerMatchedNote: "לא זוהה ברוקר אוטומטית — מפה את העמודות מטה.",
+    notTradeFileTitle: "זה לא נראה כמו קובץ עסקאות",
+    notTradeFileHint: "DASH מייבא היסטוריית עסקאות — תאריך, כיוון, סימבול ורווח/הפסד לכל עסקה. אם זהו קובץ אחזקות או יתרות, לא ניתן לייבא אותו כעסקאות. עדיין ניתן לנסות למפות את העמודות ידנית מטה.",
+    importFileHint: "טיפ: העלה את הייצוא שכולל רווח/הפסד לכל עסקה — למשל “Balance history” של TradingView.",
+    tvWrongExportOrders: (filename) => `${filename} — זוהי היסטוריית הפקודות של TradingView (ביצועים בלבד, ללא רווח/הפסד). ייצא במקום זאת את “Balance history” — הקובץ עם הרווח/הפסד הממומש.`,
+    tvWrongExportJournal: (filename) => `${filename} — זהו יומן פעילות של TradingView, לא נתוני עסקאות. ייצא במקום זאת את “Balance history” — הקובץ עם הרווח/הפסד הממומש.`,
 
     // Unified field labels (CSV mapping UI)
     symbolField: "סימבול",
