@@ -1,4 +1,5 @@
 import { getParsers } from "./parserRegistry";
+import { matchAdvisory } from "./advisories";
 import { DETECTION_CONFIDENCE_THRESHOLD } from "./adapterContract";
 import { UNIFIED_FIELDS, guessMapping } from "../applyMapping";
 
@@ -28,6 +29,9 @@ export function assessTradePlausibility(headers) {
  * Returns one of:
  *   kind "recognized"   - a registered broker adapter matched confidently;
  *                         `parser` is set. UI can auto-parse and skip mapping.
+ *   kind "advisory"     - a known-but-unimportable file (e.g. the wrong export
+ *                         from a supported broker); `advisory` carries a
+ *                         messageKey the UI shows instead of mapping.
  *   kind "generic"      - no broker matched, but it looks like trades; route to
  *                         the manual column-mapping flow.
  *   kind "unrecognized" - doesn't look like a trade file; UI should warn (mapping
@@ -52,6 +56,12 @@ export function detectParser(headers, sampleRows = [], rawText = "") {
 
   if (best && best.confidence >= DETECTION_CONFIDENCE_THRESHOLD) {
     return { ...base, kind: "recognized", parser: best.parser };
+  }
+  // Before falling back, check for a known-but-unimportable file (e.g. the wrong
+  // export from a supported broker) so we can guide instead of dead-ending.
+  const advisory = matchAdvisory(headers, sampleRows, rawText);
+  if (advisory) {
+    return { ...base, kind: "advisory", parser: null, advisory };
   }
   if (plausibility.looksLikeTrades) {
     return { ...base, kind: "generic", parser: null };

@@ -29,6 +29,7 @@ export default function SelectStep({ t, pending, error, maxMb, onFilesSelected }
         <span style={{ fontSize: 16 }}>↑</span> {t("chooseCsvFile")}
       </button>
       <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>{t("csvOnlyUpTo", maxMb)}</div>
+      <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{t("importFileHint")}</div>
       {error && <div style={{ color: C.red, fontSize: 12, marginTop: 10 }}>{error}</div>}
     </div>
   );

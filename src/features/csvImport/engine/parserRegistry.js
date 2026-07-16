@@ -8,10 +8,17 @@ const registry = [];
 
 export function registerParser(adapter) {
   validateParser(adapter);
-  if (registry.some((p) => p.id === adapter.id)) {
-    throw new Error(`Parser adapter "${adapter.id}" is already registered`);
+  // Idempotent by id: re-registering the same adapter replaces it rather than
+  // throwing. This keeps the registry correct when a self-registering module is
+  // re-executed - notably under Vite HMR in dev, where index.js re-runs on every
+  // hot update. A genuine id clash between two different adapters is a build-time
+  // authoring bug, caught in review, not a runtime concern.
+  const existing = registry.findIndex((p) => p.id === adapter.id);
+  if (existing >= 0) {
+    registry[existing] = adapter;
+  } else {
+    registry.push(adapter);
   }
-  registry.push(adapter);
   return adapter;
 }
 

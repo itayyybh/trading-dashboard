@@ -83,6 +83,13 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
         }
       }
 
+      // A known-but-unimportable file (e.g. the wrong export from a supported
+      // broker): report it with specific guidance instead of a mapping dead-end.
+      if (det.kind === "advisory") {
+        skipped.push({ filename: file.name, reason: "advisory", messageKey: det.advisory.messageKey });
+        continue;
+      }
+
       // "generic" or "unrecognized" -> the user maps this file by hand.
       pauseForManualMapping(i, fileHeaders, preview, det, processed, skipped);
       return;
@@ -272,6 +279,7 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
     if (s.reason === "duplicate") return t("fileSkippedDuplicate", s.filename, new Date(s.date).toLocaleDateString());
     if (s.reason === "tooLarge") return t("fileSkippedTooLarge", s.filename, MAX_MB);
     if (s.reason === "rowsTooMany") return t("rowsTooMany", s.count, MAX_ROWS);
+    if (s.reason === "advisory") return t(s.messageKey, s.filename);
     return t("fileSkippedInvalidType", s.filename);
   }
 
