@@ -2,16 +2,35 @@ import { useState } from "react";
 import { C } from "./constants";
 import { useLocale } from "../../lib/i18n/LocaleContext";
 import { UNIFIED_FIELDS, normalizeDirection, normalizeNumber, normalizeDate } from "../csvImport/applyMapping";
-import { logManualTrade } from "./api/tradesApi";
+import { logManualTrade, updateTrade } from "./api/tradesApi";
+
+// Maps an existing trade's raw fields onto the form's string-based value shape.
+function initialValues(trade) {
+  if (!trade) return { direction: "long" };
+  const r = trade.raw ?? {};
+  return {
+    trade_date: r.trade_date ?? "",
+    direction: r.direction ?? "long",
+    symbol: r.symbol ?? "",
+    pnl: r.pnl ?? "",
+    entry_time: r.entry_time ?? "",
+    exit_time: r.exit_time ?? "",
+    quantity: r.quantity ?? "",
+    entry_price: r.entry_price ?? "",
+    exit_price: r.exit_price ?? "",
+    fees: r.fees ?? "",
+  };
+}
 
 const inputStyle = {
   background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8,
   padding: "8px 10px", color: C.text, fontSize: 13, width: "100%",
 };
 
-export default function LogTradeModal({ portfolioId, onClose, onSaved }) {
+export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) {
   const { t } = useLocale();
-  const [values, setValues] = useState({ direction: "long" });
+  const editing = Boolean(trade);
+  const [values, setValues] = useState(() => initialValues(trade));
   const [error, setError] = useState(null);
   const [pending, setPending] = useState(false);
 
@@ -39,21 +58,26 @@ export default function LogTradeModal({ portfolioId, onClose, onSaved }) {
       return;
     }
 
+    const fields = {
+      trade_date,
+      direction,
+      symbol,
+      pnl,
+      entry_time: values.entry_time || null,
+      exit_time: values.exit_time || null,
+      quantity: normalizeNumber(values.quantity),
+      entry_price: normalizeNumber(values.entry_price),
+      exit_price: normalizeNumber(values.exit_price),
+      fees: normalizeNumber(values.fees) ?? 0,
+    };
+
     setPending(true);
     try {
-      await logManualTrade(portfolioId, {
-        trade_date,
-        direction,
-        symbol,
-        pnl,
-        entry_time: values.entry_time || null,
-        exit_time: values.exit_time || null,
-        quantity: normalizeNumber(values.quantity),
-        entry_price: normalizeNumber(values.entry_price),
-        exit_price: normalizeNumber(values.exit_price),
-        fees: normalizeNumber(values.fees) ?? 0,
-        raw_row: null,
-      });
+      if (editing) {
+        await updateTrade(trade.id, fields);
+      } else {
+        await logManualTrade(portfolioId, { ...fields, raw_row: null });
+      }
       onSaved?.();
     } catch (err) {
       setError(err.message);
@@ -68,7 +92,7 @@ export default function LogTradeModal({ portfolioId, onClose, onSaved }) {
         style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 24, width: 360, display: "flex", flexDirection: "column", gap: 12 }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>{t("logTrade")}</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>{editing ? t("editTrade") : t("logTrade")}</h2>
           <button type="button" onClick={onClose} style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 13 }}>{t("close")}</button>
         </div>
 

@@ -5,12 +5,17 @@ import Badge from "../../../ui/Badge";
 import { fmt } from "../format";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
-export default function TradeLogTable({ trades }) {
+export default function TradeLogTable({ trades, onEdit }) {
   const { t } = useLocale();
   const headers = [t("date"), t("entry"), t("exit"), t("dirShort"), t("asset"), t("pnl")];
 
   return (
-    <ChartCard title={t("tradeLog")} right={<span style={{ fontSize: 11, color: C.muted }}>{t("tradesSuffix", trades.length)}</span>}>
+    <ChartCard
+      title={t("tradeLog")}
+      collapsible
+      defaultCollapsed
+      right={<span style={{ fontSize: 11, color: C.muted }}>{t("tradesSuffix", trades.length)}</span>}
+    >
       <div style={{ overflowX: "auto", margin: "0 -20px -20px" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
           <thead>
@@ -35,11 +40,12 @@ export default function TradeLogTable({ trades }) {
                   {h}
                 </th>
               ))}
+              <th style={{ borderBottom: `1px solid ${C.border}`, background: C.panel, position: "sticky", top: 0 }} />
             </tr>
           </thead>
           <tbody>
             {trades.map((tr, i) => (
-              <TradeRow key={i} tr={tr} t={t} last={i === trades.length - 1} />
+              <TradeRow key={tr.id ?? i} tr={tr} t={t} last={i === trades.length - 1} onEdit={onEdit} />
             ))}
           </tbody>
         </table>
@@ -48,7 +54,7 @@ export default function TradeLogTable({ trades }) {
   );
 }
 
-function TradeRow({ tr, t, last }) {
+function TradeRow({ tr, t, last, onEdit }) {
   const [hover, setHover] = useState(false);
   const cell = { padding: "9px 12px", borderBottom: last ? "none" : `1px solid ${C.borderSoft}` };
 
@@ -76,6 +82,25 @@ function TradeRow({ tr, t, last }) {
         }}
       >
         {fmt(tr.pnl)}
+      </td>
+      <td style={{ ...cell, textAlign: "right", width: 1, whiteSpace: "nowrap" }}>
+        <button
+          type="button"
+          onClick={() => onEdit?.(tr)}
+          aria-label={t("editTrade")}
+          style={{
+            background: "transparent",
+            border: `1px solid ${C.border}`,
+            borderRadius: 6,
+            color: hover ? C.text : C.muted,
+            cursor: "pointer",
+            fontSize: 11,
+            padding: "3px 9px",
+            transition: "color 120ms",
+          }}
+        >
+          {t("edit")}
+        </button>
       </td>
     </tr>
   );

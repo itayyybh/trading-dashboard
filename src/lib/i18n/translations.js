@@ -73,6 +73,8 @@ export const translations = {
     dirShort: "Dir",
     asset: "Asset",
     pnl: "P&L",
+    edit: "Edit",
+    editTrade: "Edit trade",
 
     // Portfolios
     newPortfolio: "+ New portfolio",
@@ -209,6 +211,8 @@ export const translations = {
     dirShort: "כיוון",
     asset: "נכס",
     pnl: "רווח/הפסד",
+    edit: "עריכה",
+    editTrade: "עריכת עסקה",
 
     // Portfolios
     newPortfolio: "+ תיק חדש",

@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [activeId, setActiveId] = useState(null);
   const [showImport, setShowImport] = useState(false);
   const [showLogTrade, setShowLogTrade] = useState(false);
+  const [editingTrade, setEditingTrade] = useState(null);
   const [trades, setTrades] = useState(null); // null = loading, [] = loaded empty
   const [error, setError] = useState(null);
 
@@ -152,6 +153,18 @@ export default function Dashboard() {
         />
       )}
 
+      {activePortfolio && editingTrade && (
+        <LogTradeModal
+          portfolioId={activePortfolio.id}
+          trade={editingTrade}
+          onClose={() => setEditingTrade(null)}
+          onSaved={() => {
+            setEditingTrade(null);
+            refreshTrades();
+          }}
+        />
+      )}
+
       {/* State machine: no portfolio → error → loading → empty → data */}
       {!activePortfolio ? (
         <EmptyState
@@ -198,7 +211,7 @@ export default function Dashboard() {
             <LongShortBreakdown longs={s.longs} shorts={s.shorts} />
           </div>
 
-          <TradeLogTable trades={trades} />
+          <TradeLogTable trades={trades} onEdit={setEditingTrade} />
         </>
       )}
     </AppShell>
