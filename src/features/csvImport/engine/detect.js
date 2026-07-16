@@ -35,13 +35,14 @@ export function assessTradePlausibility(headers) {
  *
  * @param {string[]} headers
  * @param {Object[]} [sampleRows] a few parsed rows, for content-based detection
+ * @param {string} [rawText] original file text, for section/preamble formats (IB)
  * @returns {{ kind: string, parser: import("./adapterContract").ParserAdapter | null,
  *             confidence: number, candidates: {parser: object, confidence: number}[],
  *             plausibility: {guess: object, matchedRequired: string[], looksLikeTrades: boolean} }}
  */
-export function detectParser(headers, sampleRows = []) {
+export function detectParser(headers, sampleRows = [], rawText = "") {
   const scored = getParsers()
-    .map((parser) => ({ parser, confidence: clamp01(parser.detect(headers, sampleRows)) }))
+    .map((parser) => ({ parser, confidence: clamp01(parser.detect(headers, sampleRows, rawText)) }))
     .filter((s) => s.confidence > 0)
     .sort((a, b) => b.confidence - a.confidence);
 

@@ -20,9 +20,12 @@
  *   Stable machine identifier, e.g. "interactive_brokers".
  * @property {string} label
  *   Human-readable name shown in the UI, e.g. "Interactive Brokers".
- * @property {(headers: string[], sampleRows: Object[]) => number} detect
+ * @property {(headers: string[], sampleRows: Object[], rawText?: string) => number} detect
  *   Confidence in [0,1] that this file was produced by this source. Return 0
  *   when it's definitely not ours. Should be cheap - it runs for every file.
+ *   `rawText` is the original file text, needed by sources whose section /
+ *   preamble structure makes the parsed header row meaningless (e.g. IB
+ *   Activity Statements, where the header belongs to the first section only).
  * @property {(rows: Object[], rawText?: string) => ParsedImport} parse
  *   Turn ALL data rows into normalized Trades. `rawText` is the original file
  *   text, provided for sources whose CSV has preamble/section rows a plain
