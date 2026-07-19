@@ -37,7 +37,7 @@ export default function MappingStep({
   return (
     <div>
       {queue.length > 1 && (
-        <div style={{ fontSize: 11, color: C.accent, fontWeight: 700, marginBottom: 10 }}>
+        <div style={{ fontSize: 11, color: C.brand, fontWeight: 700, marginBottom: 10 }}>
           {t("fileProgress", queueIndex + 1, queue.length)} — {currentFile?.name}
         </div>
       )}
@@ -45,7 +45,7 @@ export default function MappingStep({
       {templates.length > 0 && (
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, color: C.muted, marginRight: 8 }}>{t("useSavedMapping")}</label>
-          <select style={selectStyle} defaultValue="" onChange={(e) => e.target.value && onApplyTemplate(e.target.value)}>
+          <select className="dash-input" style={selectStyle} defaultValue="" onChange={(e) => e.target.value && onApplyTemplate(e.target.value)}>
             <option value="">{t("chooseTemplateOption")}</option>
             {templates.map((template) => (
               <option key={template.id} value={template.id}>{template.broker_label}</option>
@@ -62,7 +62,7 @@ export default function MappingStep({
             <label style={{ fontSize: 12, color: C.muted }}>
               {t(field.labelKey)}{field.required && <span style={{ color: C.red }}> *</span>}
             </label>
-            <select
+            <select className="dash-input"
               style={selectStyle}
               value={mapping[field.key] ?? ""}
               onChange={(e) => onSetFieldMapping(field.key, e.target.value)}
@@ -77,7 +77,7 @@ export default function MappingStep({
       </div>
 
       <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 14 }}>
-        <input
+        <input className="dash-input"
           placeholder={t("brokerNamePlaceholder")}
           value={brokerLabel}
           onChange={(e) => onSetBrokerLabel(e.target.value)}
@@ -113,7 +113,7 @@ export default function MappingStep({
                       <td style={{ padding: "4px 8px" }}>{result.trade.direction}</td>
                       <td style={{ padding: "4px 8px" }}>{result.trade.symbol}</td>
                       <td style={{ padding: "4px 8px" }}>{result.trade.pnl}</td>
-                      <td style={{ padding: "4px 8px", color: C.accent }}>{t("statusOk")}</td>
+                      <td style={{ padding: "4px 8px", color: C.pos }}>{t("statusOk")}</td>
                     </>
                   ) : (
                     <td colSpan={4} style={{ padding: "4px 8px", color: C.red }}>{result.errors.map((code) => t(code)).join(", ")}</td>
@@ -132,9 +132,10 @@ export default function MappingStep({
           onClick={onConfirm}
           disabled={!requiredFieldsMapped || pending}
           style={{
-            padding: "8px 18px", borderRadius: 20, border: "none",
-            background: !requiredFieldsMapped || pending ? C.border : C.accentDim,
-            color: C.accent, fontWeight: 700, fontSize: 13,
+            padding: "8px 18px", borderRadius: 999,
+            border: `1px solid ${!requiredFieldsMapped || pending ? C.border : "#818cf866"}`,
+            background: !requiredFieldsMapped || pending ? C.border : C.brandDim,
+            color: !requiredFieldsMapped || pending ? C.muted : C.brand, fontWeight: 700, fontSize: 13,
             cursor: !requiredFieldsMapped || pending ? "default" : "pointer",
           }}
         >

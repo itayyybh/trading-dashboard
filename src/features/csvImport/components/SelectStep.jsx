@@ -21,8 +21,8 @@ export default function SelectStep({ t, pending, error, maxMb, onFilesSelected }
         disabled={pending}
         style={{
           display: "flex", alignItems: "center", gap: 10,
-          padding: "10px 20px", borderRadius: 20, border: `1px solid ${C.accent}`,
-          background: C.accentDim, color: C.accent, fontSize: 13, fontWeight: 700,
+          padding: "10px 20px", borderRadius: 999, border: `1px solid ${C.brand}`,
+          background: C.brandDim, color: C.brand, fontSize: 13, fontWeight: 700,
           cursor: pending ? "default" : "pointer",
         }}
       >

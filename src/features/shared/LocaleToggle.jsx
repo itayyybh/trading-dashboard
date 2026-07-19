@@ -12,9 +12,9 @@ export default function LocaleToggle() {
           onClick={() => setLocale(code)}
           style={{
             padding: "4px 10px", borderRadius: 20,
-            border: `1px solid ${locale === code ? C.accent : C.border}`,
-            background: locale === code ? C.accentDim : "transparent",
-            color: locale === code ? C.accent : C.muted,
+            border: `1px solid ${locale === code ? C.brand : C.border}`,
+            background: locale === code ? C.brandDim : "transparent",
+            color: locale === code ? C.brand : C.muted,
             fontSize: 11, fontWeight: 700, cursor: "pointer",
           }}
         >

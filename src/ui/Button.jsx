@@ -23,11 +23,11 @@ export default function Button({
   };
 
   const variants = {
-    // Calm translucent fill instead of a solid neon block — reads premium, not cheap.
+    // Calm translucent brand fill instead of a solid block — reads premium.
     primary: {
-      background: hover ? "#2aa77f26" : C.accentDim,
-      color: C.accent,
-      border: `1px solid ${hover ? C.accent : "#2aa77f66"}`,
+      background: hover ? "#818cf83a" : C.brandDim,
+      color: C.brand,
+      border: `1px solid ${hover ? C.brand : "#818cf866"}`,
     },
     secondary: {
       background: hover ? C.panel2 : "transparent",

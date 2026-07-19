@@ -41,7 +41,7 @@ export default function SignInPage() {
       error={error}
       footer={
         <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
-          {t("noAccountQuestion")} <Link to="/sign-up" style={{ color: C.accent }}>{t("signUp")}</Link>
+          {t("noAccountQuestion")} <Link to="/sign-up" style={{ color: C.brand }}>{t("signUp")}</Link>
         </div>
       }
     />

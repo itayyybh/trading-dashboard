@@ -18,7 +18,7 @@ export default function ReviewStep({
               <div style={{ fontSize: 12, color: C.text }}>
                 {t("fileRowsSummary", pf.filename, pf.validTrades.length, pf.totalCount)}
                 {pf.source === "auto" && pf.detectedLabel && (
-                  <span style={{ marginInlineStart: 8, fontSize: 11, color: C.accent, fontWeight: 600 }}>
+                  <span style={{ marginInlineStart: 8, fontSize: 11, color: C.brand, fontWeight: 600 }}>
                     {t("autoDetectedBadge", pf.detectedLabel)}
                   </span>
                 )}
@@ -54,9 +54,10 @@ export default function ReviewStep({
             onClick={onImportAll}
             disabled={pending}
             style={{
-              padding: "8px 18px", borderRadius: 20, border: "none",
-              background: pending ? C.border : C.accentDim,
-              color: C.accent, fontWeight: 700, fontSize: 13, cursor: pending ? "default" : "pointer",
+              padding: "8px 18px", borderRadius: 999,
+              border: `1px solid ${pending ? C.border : "#818cf866"}`,
+              background: pending ? C.border : C.brandDim,
+              color: pending ? C.muted : C.brand, fontWeight: 700, fontSize: 13, cursor: pending ? "default" : "pointer",
             }}
           >
             {pending ? t("importing") : t("importAllLabel")}

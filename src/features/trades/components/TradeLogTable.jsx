@@ -17,7 +17,7 @@ export default function TradeLogTable({ trades, onEdit }) {
       right={<span style={{ fontSize: 11, color: C.muted }}>{t("tradesSuffix", trades.length)}</span>}
     >
       <div style={{ overflowX: "auto", margin: "0 -20px -20px" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+        <table style={{ width: "100%", minWidth: 520, borderCollapse: "collapse", fontSize: 12 }}>
           <thead>
             <tr>
               {headers.map((h, i) => (

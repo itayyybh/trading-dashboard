@@ -4,8 +4,8 @@ import { C, radius, font } from "./theme";
 // tabular numeric font (handy for +$ values inside tables).
 const TONES = {
   neutral: { bg: C.panel2, fg: C.textDim, bd: C.border },
-  accent: { bg: C.accentDim, fg: C.accent, bd: "transparent" },
-  pos: { bg: C.accentDim, fg: C.accent, bd: "transparent" },
+  accent: { bg: C.brandDim, fg: C.brand, bd: "transparent" },
+  pos: { bg: C.posDim, fg: C.pos, bd: "transparent" },
   neg: { bg: C.redDim, fg: C.red, bd: "transparent" },
   gold: { bg: C.goldDim, fg: C.gold, bd: "transparent" },
 };

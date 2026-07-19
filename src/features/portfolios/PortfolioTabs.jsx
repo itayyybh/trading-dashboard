@@ -32,8 +32,8 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
               gap: 2,
               padding: "4px 4px 4px 14px",
               borderRadius: radius.pill,
-              border: `1px solid ${active ? C.accent : C.border}`,
-              background: active ? C.accentDim : "transparent",
+              border: `1px solid ${active ? C.brand : C.border}`,
+              background: active ? C.brandDim : "transparent",
               transition: "background 150ms, border-color 150ms",
             }}
           >
@@ -43,7 +43,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
                 background: "transparent",
                 border: "none",
                 padding: 0,
-                color: active ? C.accent : C.textDim,
+                color: active ? C.brand : C.textDim,
                 fontSize: 12.5,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -59,7 +59,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
                 background: "transparent",
                 border: "none",
                 cursor: "pointer",
-                color: active ? C.accent : C.muted,
+                color: active ? C.brand : C.muted,
                 opacity: 0.6,
                 fontSize: 15,
                 lineHeight: 1,
@@ -77,6 +77,7 @@ export default function PortfolioTabs({ portfolios, activeId, onSelect, onCreate
         <form onSubmit={submitNew} style={{ display: "flex", gap: 6 }}>
           <input
             autoFocus
+            className="dash-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t("portfolioNamePlaceholder")}

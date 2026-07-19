@@ -86,10 +86,10 @@ export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) 
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50 }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(6,8,14,0.66)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}>
       <form
         onSubmit={handleSubmit}
-        style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 24, width: 360, display: "flex", flexDirection: "column", gap: 12 }}
+        style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 14, boxShadow: "0 28px 64px -20px rgba(0,0,0,0.85)", padding: 24, width: 380, maxWidth: "100%", maxHeight: "calc(100vh - 32px)", overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>{editing ? t("editTrade") : t("logTrade")}</h2>
@@ -98,12 +98,12 @@ export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) 
 
         <label style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 4 }}>
           {t("date")} <span style={{ color: C.red }}>*</span>
-          <input type="date" value={values.trade_date ?? ""} onChange={(e) => setField("trade_date", e.target.value)} style={inputStyle} />
+          <input className="dash-input" type="date" value={values.trade_date ?? ""} onChange={(e) => setField("trade_date", e.target.value)} style={inputStyle} />
         </label>
 
         <label style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 4 }}>
           {t("directionField")} <span style={{ color: C.red }}>*</span>
-          <select value={values.direction ?? "long"} onChange={(e) => setField("direction", e.target.value)} style={inputStyle}>
+          <select className="dash-input" value={values.direction ?? "long"} onChange={(e) => setField("direction", e.target.value)} style={inputStyle}>
             <option value="long">{t("long")}</option>
             <option value="short">{t("short")}</option>
           </select>
@@ -111,19 +111,19 @@ export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) 
 
         <label style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 4 }}>
           {t("symbolField")} <span style={{ color: C.red }}>*</span>
-          <input value={values.symbol ?? ""} onChange={(e) => setField("symbol", e.target.value)} style={inputStyle} />
+          <input className="dash-input" value={values.symbol ?? ""} onChange={(e) => setField("symbol", e.target.value)} style={inputStyle} />
         </label>
 
         <label style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 4 }}>
           {t("pnl")} <span style={{ color: C.red }}>*</span>
-          <input value={values.pnl ?? ""} onChange={(e) => setField("pnl", e.target.value)} style={inputStyle} placeholder="e.g. 120 or -45.50" />
+          <input className="dash-input" value={values.pnl ?? ""} onChange={(e) => setField("pnl", e.target.value)} style={inputStyle} placeholder="e.g. 120 or -45.50" />
         </label>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {UNIFIED_FIELDS.filter((f) => !f.required).map((field) => (
             <label key={field.key} style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 4 }}>
               {t(field.labelKey)}
-              <input value={values[field.key] ?? ""} onChange={(e) => setField(field.key, e.target.value)} style={inputStyle} />
+              <input className="dash-input" value={values[field.key] ?? ""} onChange={(e) => setField(field.key, e.target.value)} style={inputStyle} />
             </label>
           ))}
         </div>
@@ -134,8 +134,9 @@ export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) 
           type="submit"
           disabled={pending}
           style={{
-            marginTop: 6, padding: "9px 16px", borderRadius: 8, border: "none",
-            background: pending ? C.border : C.accentDim, color: C.accent,
+            marginTop: 6, padding: "10px 16px", borderRadius: 999,
+            border: `1px solid ${pending ? C.border : "#818cf866"}`,
+            background: pending ? C.border : C.brandDim, color: pending ? C.muted : C.brand,
             fontWeight: 700, fontSize: 13, cursor: pending ? "default" : "pointer",
           }}
         >

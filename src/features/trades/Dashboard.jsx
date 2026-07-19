@@ -107,7 +107,7 @@ export default function Dashboard() {
     <AppShell topRight={topRight}>
       {/* Page heading */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, letterSpacing: 3, color: C.accent, textTransform: "uppercase", marginBottom: 6, fontWeight: 700 }}>
+        <div style={{ fontSize: 11, letterSpacing: 3, color: C.brand, textTransform: "uppercase", marginBottom: 6, fontWeight: 700 }}>
           {t("tradingJournal")}
         </div>
         <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: "-0.03em" }}>{t("performanceDashboard")}</h1>

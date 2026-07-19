@@ -150,6 +150,9 @@ export const translations = {
     noTradeDay: "No trades",
     dayTooltip: (date, pnl, count) => `${date} · ${pnl} · ${count} trade${count === 1 ? "" : "s"}`,
     monthTotal: (pnl) => `Month: ${pnl}`,
+    calBalance: "Balance",
+    calDayPnl: "Day P&L",
+    calTradeCount: (n) => `${n} trade${n === 1 ? "" : "s"}`,
   },
   he: {
     // Auth
@@ -298,5 +301,8 @@ export const translations = {
     noTradeDay: "אין עסקאות",
     dayTooltip: (date, pnl, count) => `${date} · ${pnl} · ${count} עסקאות`,
     monthTotal: (pnl) => `החודש: ${pnl}`,
+    calBalance: "יתרה",
+    calDayPnl: "רווח/הפסד יומי",
+    calTradeCount: (n) => `${n} עסקאות`,
   },
 };

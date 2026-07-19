@@ -24,7 +24,7 @@ export default function ChartCard({ title, right, children, dir, style, collapsi
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 3, height: 14, background: C.accent, borderRadius: 2 }} />
+          <span style={{ width: 3, height: 14, background: C.brand, borderRadius: 2 }} />
           <span
             style={{
               fontSize: 12,

@@ -22,7 +22,7 @@ export default function Brand({ size = "md", showMark = true, showTagline = fals
           }}
         >
           D
-          <span style={{ color: C.accent, fontFamily: font.mono, fontWeight: 700, margin: "0 0.02em" }}>א</span>
+          <span style={{ color: C.brand, fontFamily: font.mono, fontWeight: 700, margin: "0 0.02em" }}>א</span>
           SH
         </div>
         {showTagline && (
@@ -60,7 +60,7 @@ function Mark({ size = 26 }) {
             width: size * 0.12,
             height: `${h * 100}%`,
             borderRadius: 2,
-            background: i === 2 ? C.accent : C.muted,
+            background: i === 2 ? C.brand : C.muted,
           }}
         />
       ))}

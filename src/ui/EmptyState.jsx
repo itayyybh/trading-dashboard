@@ -7,7 +7,7 @@ import { C, radius } from "./theme";
 //   action:  optional node (e.g. a <Button/>) shown under the copy
 export default function EmptyState({ title, subtitle, icon, action, variant = "empty" }) {
   const accent =
-    variant === "error" ? C.red : variant === "loading" ? C.textDim : C.accent;
+    variant === "error" ? C.red : variant === "loading" ? C.textDim : C.brand;
   const defaultIcon = variant === "error" ? "!" : variant === "loading" ? null : "◇";
 
   return (
@@ -38,7 +38,7 @@ export default function EmptyState({ title, subtitle, icon, action, variant = "e
             fontSize: 20,
             fontWeight: 700,
             color: accent,
-            background: variant === "error" ? C.redDim : C.accentSoft,
+            background: variant === "error" ? C.redDim : C.brandSoft,
             border: `1px solid ${accent}44`,
             marginBottom: 8,
           }}

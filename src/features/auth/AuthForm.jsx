@@ -54,12 +54,12 @@ export default function AuthForm({ title, onSubmit, submitLabel, pending, error,
 
             <label style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 6 }}>
               {t("email")}
-              <input name="email" type="email" required autoComplete="email" style={inputStyle} />
+              <input name="email" type="email" required autoComplete="email" className="dash-input" style={inputStyle} />
             </label>
 
             <label style={{ fontSize: 12, color: C.muted, display: "flex", flexDirection: "column", gap: 6 }}>
               {t("password")}
-              <input name="password" type="password" required minLength={6} autoComplete="current-password" style={inputStyle} />
+              <input name="password" type="password" required minLength={6} autoComplete="current-password" className="dash-input" style={inputStyle} />
             </label>
 
             {error && <div style={{ color: C.red, fontSize: 12 }}>{error}</div>}

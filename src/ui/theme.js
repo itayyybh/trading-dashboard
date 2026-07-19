@@ -23,10 +23,12 @@ export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
 
 export const shadow = {
   // Cards: a hairline top highlight (lifts the surface) + soft ambient drop.
-  card: "inset 0 1px 0 rgba(255,255,255,0.04), 0 12px 30px -18px rgba(0,0,0,0.7)",
-  cardHover: "inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 40px -20px rgba(0,0,0,0.8)",
+  card: "inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 28px -16px rgba(0,0,0,0.75)",
+  cardHover: "inset 0 1px 0 rgba(255,255,255,0.07), 0 20px 44px -20px rgba(0,0,0,0.85)",
   // Floating layers (modals, dropdowns).
-  overlay: "0 24px 60px -20px rgba(0,0,0,0.8)",
+  overlay: "0 28px 64px -20px rgba(0,0,0,0.85)",
+  // Focus ring for inputs — a soft brand halo (paired with a solid border).
+  focus: "0 0 0 3px rgba(129,140,248,0.28)",
 };
 
 // Shared transition for interactive polish.

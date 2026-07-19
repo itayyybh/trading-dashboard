@@ -43,7 +43,7 @@ export default function SignUpPage() {
     return (
       <div style={{ background: C.bg, minHeight: "100vh", color: C.text, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', system-ui, sans-serif" }}>
         <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, width: 320, textAlign: "center" }}>
-          {t("confirmEmailPrefix")} <Link to="/sign-in" style={{ color: C.accent }}>{t("signIn").toLowerCase()}</Link>.
+          {t("confirmEmailPrefix")} <Link to="/sign-in" style={{ color: C.brand }}>{t("signIn").toLowerCase()}</Link>.
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ export default function SignUpPage() {
       error={error}
       footer={
         <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
-          {t("alreadyHaveAccountQuestion")} <Link to="/sign-in" style={{ color: C.accent }}>{t("signIn")}</Link>
+          {t("alreadyHaveAccountQuestion")} <Link to="/sign-in" style={{ color: C.brand }}>{t("signIn")}</Link>
         </div>
       }
     />

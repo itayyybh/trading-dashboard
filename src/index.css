@@ -3,8 +3,9 @@
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, "Menlo", monospace;
 
-  --dash-bg: #0a0d14;
-  --dash-text: #e6ebf2;
+  --dash-bg: #0a0d15;
+  --dash-text: #e8edf5;
+  --dash-brand: #818cf8;
 }
 
 * {
@@ -20,11 +21,12 @@ body,
 
 body {
   /* matches C.bg - avoids a white flash/border before the app mounts.
-     The layered radial glows give the dark canvas depth without gradients. */
+     Layered radial glows give the dark canvas depth without gradients:
+     a brand-indigo bloom top-right, a fainter cool wash top-left. */
   background-color: var(--dash-bg);
   background-image:
-    radial-gradient(900px 500px at 78% -8%, rgba(42, 167, 127, 0.05), transparent 60%),
-    radial-gradient(700px 500px at 8% 4%, rgba(121, 134, 203, 0.035), transparent 55%);
+    radial-gradient(1000px 560px at 82% -10%, rgba(129, 140, 248, 0.06), transparent 60%),
+    radial-gradient(760px 520px at 4% 2%, rgba(52, 211, 153, 0.028), transparent 55%);
   background-attachment: fixed;
   color: var(--dash-text);
   font-family: var(--font-sans);
@@ -42,7 +44,7 @@ body {
 
 /* Consistent, visible keyboard focus without the default heavy outline. */
 :focus-visible {
-  outline: 2px solid rgba(42, 167, 127, 0.6);
+  outline: 2px solid rgba(129, 140, 248, 0.65);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -51,27 +53,27 @@ body {
 }
 
 ::selection {
-  background: rgba(42, 167, 127, 0.26);
+  background: rgba(129, 140, 248, 0.3);
   color: #fff;
 }
 
 /* Slim, dark scrollbars that fit the terminal aesthetic. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #29324a transparent;
+  scrollbar-color: #2b3348 transparent;
 }
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #232b40;
+  background: #262b3d;
   border: 2px solid transparent;
   background-clip: content-box;
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2f3a55;
+  background: #333b55;
   background-clip: content-box;
 }
 
@@ -82,9 +84,72 @@ button {
   font-family: inherit;
 }
 select option {
-  background: #10141f;
-  color: #e6ebf2;
+  background: #12151f;
+  color: #e8edf5;
 }
 input[type="checkbox"] {
-  accent-color: #2aa77f;
+  accent-color: #818cf8;
+}
+
+/* Text inputs/selects share one focus treatment: a brand border + soft halo.
+   `!important` on the border beats the inline shorthand these controls set. */
+.dash-input {
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.dash-input:focus,
+.dash-input:focus-visible {
+  border-color: var(--dash-brand) !important;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.22);
+  outline: none;
+}
+.dash-input::placeholder {
+  color: #6b7890;
+}
+
+/* ---- Responsive shell ---------------------------------------------------
+   Inline styles can't hold media queries, so the app frame uses these
+   classes for structural (not fluid-type) responsiveness: gutters and
+   heading size step down on small screens. */
+.dash-bar {
+  padding: 12px 24px;
+}
+.dash-main {
+  padding: 28px 24px 64px;
+}
+.dash-page-title {
+  font-size: 26px;
+}
+
+@media (max-width: 640px) {
+  .dash-bar {
+    padding: 10px 16px;
+  }
+  .dash-main {
+    padding: 20px 16px 48px;
+  }
+  .dash-page-title {
+    font-size: 22px;
+  }
+}
+
+@keyframes dash-tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

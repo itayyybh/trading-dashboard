@@ -15,16 +15,16 @@ export default function AppShell({ topRight, title, subtitle, children }) {
           top: 0,
           zIndex: 20,
           borderBottom: `1px solid ${C.border}`,
-          background: "rgba(10, 13, 20, 0.72)",
+          background: "rgba(10, 13, 21, 0.72)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
       >
         <div
+          className="dash-bar"
           style={{
             maxWidth: 1200,
             margin: "0 auto",
-            padding: "12px 24px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -37,10 +37,10 @@ export default function AppShell({ topRight, title, subtitle, children }) {
       </header>
 
       {/* Content column */}
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "28px 24px 64px" }}>
+      <main className="dash-main" style={{ maxWidth: 1200, margin: "0 auto" }}>
         {title && (
           <div style={{ marginBottom: 22 }}>
-            <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>{title}</h1>
+            <h1 className="dash-page-title" style={{ fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>{title}</h1>
             {subtitle && <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>{subtitle}</div>}
           </div>
         )}
