@@ -14,6 +14,13 @@ export const translations = {
     noAccountQuestion: "No account?",
     alreadyHaveAccountQuestion: "Already have an account?",
     confirmEmailPrefix: "Check your email to confirm your account, then",
+    authHeadline: "Trade with clarity.",
+    authTagline: "Your trading edge, quantified.",
+    authTrustSecurity: "Bank-grade security & privacy",
+    authTrustBrokers: "Import from any broker or platform",
+    authTrustInsights: "Institutional-grade performance insights",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
 
     // Dashboard shell
     performanceDashboard: "Performance Dashboard",
@@ -171,6 +178,13 @@ export const translations = {
     noAccountQuestion: "אין לך חשבון?",
     alreadyHaveAccountQuestion: "יש לך כבר חשבון?",
     confirmEmailPrefix: "בדוק את תיבת הדואר שלך לאישור החשבון, ואז",
+    authHeadline: "לסחור בבהירות.",
+    authTagline: "היתרון שלך, בנתונים.",
+    authTrustSecurity: "אבטחה ופרטיות ברמה בנקאית",
+    authTrustBrokers: "ייבוא מכל ברוקר או פלטפורמה",
+    authTrustInsights: "תובנות ביצועים ברמה מוסדית",
+    showPassword: "הצג סיסמה",
+    hidePassword: "הסתר סיסמה",
 
     // Dashboard shell
     performanceDashboard: "לוח בקרה לביצועים",
