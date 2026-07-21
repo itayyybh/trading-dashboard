@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { C, font } from "../../../ui/theme";
-import ChartCard from "../../../ui/ChartCard";
+import Section from "../../../ui/Section";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
 export default function WinLossPie({ wins, losses, avgWin, avgLoss }) {
@@ -13,7 +13,7 @@ export default function WinLossPie({ wins, losses, avgWin, avgLoss }) {
   const winPct = total ? Math.round((wins / total) * 100) : 0;
 
   return (
-    <ChartCard title={t("winLossSplit")}>
+    <Section title={t("winLossSplit")}>
       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
         <div dir="ltr" style={{ position: "relative", width: 120, height: 120 }}>
           <ResponsiveContainer width={120} height={120}>
@@ -53,7 +53,7 @@ export default function WinLossPie({ wins, losses, avgWin, avgLoss }) {
           />
         </div>
       </div>
-    </ChartCard>
+    </Section>
   );
 }
 

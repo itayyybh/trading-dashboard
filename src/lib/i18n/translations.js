@@ -16,7 +16,6 @@ export const translations = {
     confirmEmailPrefix: "Check your email to confirm your account, then",
 
     // Dashboard shell
-    tradingJournal: "Trading Journal",
     performanceDashboard: "Performance Dashboard",
     signOut: "Sign out",
     importCsv: "Import CSV",
@@ -30,6 +29,13 @@ export const translations = {
     createFirstPortfolioSubtitle: "Use “+ New portfolio” above to get started.",
     noTradesYetIn: (name) => `No trades yet in ${name}`,
     noTradesYetSubtitle: "Use “Import CSV” above to upload your first broker export.",
+
+    // Dashboard narrative section headers
+    performanceOverview: "Performance Overview",
+    equityProgress: "Equity Progress",
+    tradingActivity: "Trading Activity",
+    strengthsWeaknesses: "Strengths & Weaknesses",
+    detailedAnalytics: "Detailed Analytics",
 
     // KPIs
     totalPnl: "Total P&L",
@@ -167,7 +173,6 @@ export const translations = {
     confirmEmailPrefix: "בדוק את תיבת הדואר שלך לאישור החשבון, ואז",
 
     // Dashboard shell
-    tradingJournal: "יומן מסחר",
     performanceDashboard: "לוח בקרה לביצועים",
     signOut: "התנתקות",
     importCsv: "ייבוא CSV",
@@ -181,6 +186,13 @@ export const translations = {
     createFirstPortfolioSubtitle: "לחץ על “תיק חדש +” מעלה כדי להתחיל.",
     noTradesYetIn: (name) => `אין עדיין עסקאות בתיק ${name}`,
     noTradesYetSubtitle: "לחץ על “ייבוא CSV” מעלה כדי להעלות את הקובץ הראשון שלך.",
+
+    // Dashboard narrative section headers
+    performanceOverview: "סקירת ביצועים",
+    equityProgress: "התפתחות ההון",
+    tradingActivity: "פעילות מסחר",
+    strengthsWeaknesses: "חוזקות וחולשות",
+    detailedAnalytics: "ניתוח מפורט",
 
     // KPIs
     totalPnl: "רווח/הפסד כולל",

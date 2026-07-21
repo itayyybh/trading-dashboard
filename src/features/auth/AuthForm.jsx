@@ -1,4 +1,5 @@
-import { C, radius, shadow } from "../../ui/theme";
+import { C, radius } from "../../ui/theme";
+import Card from "../../ui/Card";
 import Brand from "../../ui/Brand";
 import Button from "../../ui/Button";
 import { useLocale } from "../../lib/i18n/LocaleContext";
@@ -35,15 +36,7 @@ export default function AuthForm({ title, onSubmit, submitLabel, pending, error,
           <LocaleToggle />
         </div>
 
-        <div
-          style={{
-            background: C.panel,
-            border: `1px solid ${C.border}`,
-            borderRadius: radius.md,
-            boxShadow: shadow.card,
-            padding: 32,
-          }}
-        >
+        <Card padding={32}>
           {/* Brand lockup: logo mark + DאSH wordmark + tagline */}
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
             <Brand size="lg" showTagline />
@@ -70,7 +63,7 @@ export default function AuthForm({ title, onSubmit, submitLabel, pending, error,
 
             {footer}
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   );

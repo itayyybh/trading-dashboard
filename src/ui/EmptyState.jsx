@@ -2,6 +2,9 @@ import { C, radius } from "./theme";
 
 // Unified empty / loading / error surface. One component, three moods via
 // `variant` so the app never shows a bare "loading..." string again.
+// Dashed borders mean one specific thing across the app: "a placeholder,
+// take an action" — so only `empty` gets one. Loading is transient and error
+// is a real problem, neither is a placeholder, so both get a solid border.
 //   variant: "empty" | "loading" | "error"
 //   icon:    optional glyph (defaults per variant)
 //   action:  optional node (e.g. a <Button/>) shown under the copy
@@ -14,7 +17,7 @@ export default function EmptyState({ title, subtitle, icon, action, variant = "e
     <div
       style={{
         background: C.panel,
-        border: `1px dashed ${variant === "error" ? C.red + "55" : C.border}`,
+        border: variant === "empty" ? `1px dashed ${C.border}` : `1px solid ${variant === "error" ? C.red + "55" : C.border}`,
         borderRadius: radius.md,
         padding: "56px 28px",
         textAlign: "center",

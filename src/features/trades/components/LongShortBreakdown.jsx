@@ -1,5 +1,5 @@
 import { C, font } from "../../../ui/theme";
-import ChartCard from "../../../ui/ChartCard";
+import Section from "../../../ui/Section";
 import { fmt } from "../format";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
@@ -7,7 +7,7 @@ export default function LongShortBreakdown({ longs, shorts }) {
   const { t } = useLocale();
 
   return (
-    <ChartCard title={t("longVsShort")}>
+    <Section title={t("longVsShort")}>
       {[
         ["Long", longs],
         ["Short", shorts],
@@ -30,11 +30,21 @@ export default function LongShortBreakdown({ longs, shorts }) {
               <span>{wins}W · {tr.length - wins}L</span>
             </div>
             <div style={{ height: 6, background: C.bgElevated, borderRadius: 999, overflow: "hidden" }}>
-              <div style={{ width: `${wr}%`, height: "100%", background: barColor, borderRadius: 999, transition: "width 300ms" }} />
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background: barColor,
+                  borderRadius: 999,
+                  transform: `scaleX(${wr / 100})`,
+                  transformOrigin: "left",
+                  transition: "transform 300ms",
+                }}
+              />
             </div>
           </div>
         );
       })}
-    </ChartCard>
+    </Section>
   );
 }

@@ -19,7 +19,9 @@ export const radius = {
 };
 
 // Spacing scale (multiples of 4) — use for consistent rhythm.
-export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 };
+// `section` is the gap between narrative beats on a page (bigger than any
+// in-card gap) — whitespace doing the separating work a border used to do.
+export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, section: 56 };
 
 export const shadow = {
   // Cards: a hairline top highlight (lifts the surface) + soft ambient drop.
@@ -47,4 +49,28 @@ export const label = {
   textTransform: "uppercase",
   color: C.muted,
   fontWeight: 600,
+};
+
+// Three-tier type scale for page structure. Hierarchy comes from size/weight
+// first — color and decoration (ticks, uppercase) are a last resort, not the
+// primary signal.
+//   sectionHeader    — narrative beats on a page ("Performance Overview")
+//   subsectionLabel  — a chart/table's own title, legible but subordinate
+//   caption          — metadata: axis labels, counts, timestamps (= `label` above)
+export const type = {
+  sectionHeader: {
+    fontSize: 21,
+    fontWeight: 700,
+    letterSpacing: "-0.015em",
+    lineHeight: 1.25,
+    color: C.text,
+  },
+  subsectionLabel: {
+    fontSize: 14,
+    fontWeight: 600,
+    letterSpacing: "-0.005em",
+    lineHeight: 1.3,
+    color: C.text,
+  },
+  caption: label,
 };

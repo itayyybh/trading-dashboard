@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { C } from "./constants";
+import { radius, shadow } from "../../ui/theme";
+import Button from "../../ui/Button";
 import { useLocale } from "../../lib/i18n/LocaleContext";
 import { UNIFIED_FIELDS, normalizeDirection, normalizeNumber, normalizeDate } from "../csvImport/applyMapping";
 import { logManualTrade, updateTrade } from "./api/tradesApi";
@@ -89,7 +91,7 @@ export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) 
     <div style={{ position: "fixed", inset: 0, background: "rgba(6,8,14,0.66)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50, padding: 16 }}>
       <form
         onSubmit={handleSubmit}
-        style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 14, boxShadow: "0 28px 64px -20px rgba(0,0,0,0.85)", padding: 24, width: 380, maxWidth: "100%", maxHeight: "calc(100vh - 32px)", overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}
+        style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: radius.lg, boxShadow: shadow.overlay, padding: 24, width: 380, maxWidth: "100%", maxHeight: "calc(100vh - 32px)", overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>{editing ? t("editTrade") : t("logTrade")}</h2>
@@ -130,18 +132,9 @@ export default function LogTradeModal({ portfolioId, trade, onClose, onSaved }) 
 
         {error && <div style={{ color: C.red, fontSize: 12 }}>{error}</div>}
 
-        <button
-          type="submit"
-          disabled={pending}
-          style={{
-            marginTop: 6, padding: "10px 16px", borderRadius: 999,
-            border: `1px solid ${pending ? C.border : "#818cf866"}`,
-            background: pending ? C.border : C.brandDim, color: pending ? C.muted : C.brand,
-            fontWeight: 700, fontSize: 13, cursor: pending ? "default" : "pointer",
-          }}
-        >
+        <Button type="submit" variant="primary" block disabled={pending} style={{ marginTop: 6 }}>
           {pending ? t("saving") : t("save")}
-        </button>
+        </Button>
       </form>
     </div>
   );

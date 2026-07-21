@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { C } from "../trades/constants";
+import Card from "../../ui/Card";
+import Section from "../../ui/Section";
 import { parseCsvPreview, parseCsvFull } from "./parseCsv";
 import { UNIFIED_FIELDS } from "./applyMapping";
 import { detectParser } from "./engine/detect";
@@ -283,54 +285,57 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
     return t("fileSkippedInvalidType", s.filename);
   }
 
-  return (
-    <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", color: C.muted }}>{t("importTradesFromCsv")}</span>
-        <button onClick={onClose} style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 13 }}>{t("close")}</button>
-      </div>
+  const closeButton = (
+    <button onClick={onClose} style={{ background: "transparent", border: "none", color: C.muted, cursor: "pointer", fontSize: 13 }}>
+      {t("close")}
+    </button>
+  );
 
-      {step === "done" && doneSummary ? (
-        <DoneStep t={t} doneSummary={doneSummary} onReset={reset} />
-      ) : step === "select" ? (
-        <SelectStep t={t} pending={pending} error={error} maxMb={MAX_MB} onFilesSelected={handleFilesSelected} />
-      ) : step === "mapping" ? (
-        <MappingStep
-          t={t}
-          detection={detection}
-          templates={templates}
-          queue={queue}
-          queueIndex={queueIndex}
-          currentFile={currentFile}
-          headers={headers}
-          previewRows={previewRows}
-          mapping={mapping}
-          brokerLabel={brokerLabel}
-          saveAsTemplate={saveAsTemplate}
-          requiredFieldsMapped={requiredFieldsMapped}
-          pending={pending}
-          error={error}
-          isLastFile={isLastFile}
-          onApplyTemplate={applyTemplate}
-          onSetFieldMapping={setFieldMapping}
-          onSetBrokerLabel={setBrokerLabel}
-          onSetSaveAsTemplate={setSaveAsTemplate}
-          onConfirm={handleConfirmFile}
-          onReset={reset}
-        />
-      ) : (
-        <ReviewStep
-          t={t}
-          processedFiles={processedFiles}
-          skippedFiles={skippedFiles}
-          pending={pending}
-          error={error}
-          onImportAll={handleImportAll}
-          onReset={reset}
-          onRemapFile={remapFile}
-          skippedFileLabel={skippedFileLabel}
-        />
-      )}
-    </div>
+  return (
+    <Card style={{ marginBottom: 16 }}>
+      <Section title={t("importTradesFromCsv")} right={closeButton}>
+        {step === "done" && doneSummary ? (
+          <DoneStep t={t} doneSummary={doneSummary} onReset={reset} />
+        ) : step === "select" ? (
+          <SelectStep t={t} pending={pending} error={error} maxMb={MAX_MB} onFilesSelected={handleFilesSelected} />
+        ) : step === "mapping" ? (
+          <MappingStep
+            t={t}
+            detection={detection}
+            templates={templates}
+            queue={queue}
+            queueIndex={queueIndex}
+            currentFile={currentFile}
+            headers={headers}
+            previewRows={previewRows}
+            mapping={mapping}
+            brokerLabel={brokerLabel}
+            saveAsTemplate={saveAsTemplate}
+            requiredFieldsMapped={requiredFieldsMapped}
+            pending={pending}
+            error={error}
+            isLastFile={isLastFile}
+            onApplyTemplate={applyTemplate}
+            onSetFieldMapping={setFieldMapping}
+            onSetBrokerLabel={setBrokerLabel}
+            onSetSaveAsTemplate={setSaveAsTemplate}
+            onConfirm={handleConfirmFile}
+            onReset={reset}
+          />
+        ) : (
+          <ReviewStep
+            t={t}
+            processedFiles={processedFiles}
+            skippedFiles={skippedFiles}
+            pending={pending}
+            error={error}
+            onImportAll={handleImportAll}
+            onReset={reset}
+            onRemapFile={remapFile}
+            skippedFileLabel={skippedFileLabel}
+          />
+        )}
+      </Section>
+    </Card>
   );
 }
