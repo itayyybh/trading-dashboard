@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { C } from "../trades/constants";
 import { useLocale } from "../../lib/i18n/LocaleContext";
-import AuthForm, { Field, PasswordField } from "./AuthForm";
+import AuthForm, { Field } from "./AuthForm";
 import Card from "../../ui/Card";
 
-export default function SignUpPage() {
+export default function ForgotPasswordPage() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(null);
-  const [confirmSent, setConfirmSent] = useState(false);
-  const navigate = useNavigate();
+  const [sentTo, setSentTo] = useState(null);
   const { t } = useLocale();
 
   async function handleSubmit(e) {
@@ -19,9 +18,9 @@ export default function SignUpPage() {
     setError(null);
 
     const form = new FormData(e.target);
-    const { data, error } = await supabase.auth.signUp({
-      email: form.get("email"),
-      password: form.get("password"),
+    const email = form.get("email");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     setPending(false);
@@ -31,21 +30,19 @@ export default function SignUpPage() {
       return;
     }
 
-    // With email confirmation enabled, sign-up succeeds but there's no session yet.
-    if (!data.session) {
-      setConfirmSent(true);
-      return;
-    }
-
-    navigate("/", { replace: true });
+    // Don't reveal whether the address has an account — always show success.
+    setSentTo(email);
   }
 
-  if (confirmSent) {
+  if (sentTo) {
     return (
       <div style={{ minHeight: "100vh", color: C.text, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', system-ui, sans-serif", padding: 20 }}>
         <div style={{ width: 360, maxWidth: "100%" }}>
           <Card padding={32} style={{ textAlign: "center" }}>
-            {t("confirmEmailPrefix")} <Link to="/sign-in" style={{ color: C.brand }}>{t("signIn").toLowerCase()}</Link>.
+            <p style={{ margin: 0, lineHeight: 1.55 }}>{t("resetLinkSent")(sentTo)}</p>
+            <p style={{ margin: "16px 0 0", fontSize: 13 }}>
+              <Link to="/sign-in" style={{ color: C.brand }}>{t("backToSignIn")}</Link>
+            </p>
           </Card>
         </div>
       </div>
@@ -54,14 +51,15 @@ export default function SignUpPage() {
 
   return (
     <AuthForm
-      title={t("createAccount")}
+      title={t("forgotPasswordTitle")}
+      subtitle={t("forgotPasswordSubtitle")}
       onSubmit={handleSubmit}
-      submitLabel={t("signUp")}
+      submitLabel={t("sendResetLink")}
       pending={pending}
       error={error}
       footer={
         <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
-          {t("alreadyHaveAccountQuestion")} <Link to="/sign-in" style={{ color: C.brand }}>{t("signIn")}</Link>
+          <Link to="/sign-in" style={{ color: C.brand }}>{t("backToSignIn")}</Link>
         </div>
       }
     >
@@ -72,13 +70,6 @@ export default function SignUpPage() {
         required
         autoComplete="email"
         autoFocus
-      />
-      <PasswordField
-        label={t("password")}
-        name="password"
-        required
-        minLength={6}
-        autoComplete="new-password"
       />
     </AuthForm>
   );

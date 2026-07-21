@@ -27,7 +27,7 @@ const inputStyle = {
 
 // One field: label above a full-width input. `trailing` slots an inline control
 // (e.g. the password show/hide toggle) inside the input's end padding.
-function Field({ label, trailing, style, ...inputProps }) {
+export function Field({ label, trailing, style, ...inputProps }) {
   return (
     <label style={{ display: "flex", flexDirection: "column", gap: 7 }}>
       <span style={{ fontSize: 13, fontWeight: 500, color: C.textDim }}>{label}</span>
@@ -43,9 +43,49 @@ function Field({ label, trailing, style, ...inputProps }) {
   );
 }
 
-export default function AuthForm({ title, onSubmit, submitLabel, pending, error, footer }) {
+// A Field that owns its own show/hide toggle. Used anywhere a password is
+// entered (sign-in, sign-up, reset), so the eye control lives in one place.
+export function PasswordField(props) {
   const { t } = useLocale();
   const [showPassword, setShowPassword] = useState(false);
+  return (
+    <Field
+      {...props}
+      type={showPassword ? "text" : "password"}
+      trailing={
+        <button
+          type="button"
+          onClick={() => setShowPassword((v) => !v)}
+          aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+          aria-pressed={showPassword}
+          className="auth-eye"
+          style={{
+            position: "absolute",
+            insetInlineEnd: 6,
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 30,
+            height: 30,
+            padding: 0,
+            border: "none",
+            background: "transparent",
+            color: C.muted,
+            cursor: "pointer",
+            borderRadius: radius.sm,
+          }}
+        >
+          {showPassword ? <EyeOff /> : <Eye />}
+        </button>
+      }
+    />
+  );
+}
+
+export default function AuthForm({ title, subtitle, onSubmit, submitLabel, pending, error, footer, children }) {
+  const { t } = useLocale();
 
   const trustPoints = [
     t("authTrustSecurity"),
@@ -83,57 +123,19 @@ export default function AuthForm({ title, onSubmit, submitLabel, pending, error,
             <Brand size="md" />
           </div>
 
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: subtitle ? 8 : 28 }}>
             <h1 style={{ ...heading, margin: 0 }}>{title}</h1>
             <LocaleToggle />
           </div>
 
-          <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            <Field
-              label={t("email")}
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              autoFocus
-            />
+          {subtitle && (
+            <p style={{ fontSize: 13.5, color: C.muted, margin: "0 0 28px", lineHeight: 1.5 }}>
+              {subtitle}
+            </p>
+          )}
 
-            <Field
-              label={t("password")}
-              name="password"
-              type={showPassword ? "text" : "password"}
-              required
-              minLength={6}
-              autoComplete="current-password"
-              trailing={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
-                  aria-pressed={showPassword}
-                  className="auth-eye"
-                  style={{
-                    position: "absolute",
-                    insetInlineEnd: 6,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 30,
-                    height: 30,
-                    padding: 0,
-                    border: "none",
-                    background: "transparent",
-                    color: C.muted,
-                    cursor: "pointer",
-                    borderRadius: radius.sm,
-                  }}
-                >
-                  {showPassword ? <EyeOff /> : <Eye />}
-                </button>
-              }
-            />
+          <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {children}
 
             {error && (
               <div
