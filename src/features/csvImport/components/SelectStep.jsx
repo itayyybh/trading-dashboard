@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { C } from "../../trades/constants";
+import Button from "../../../ui/Button";
 
 // The initial file-picker screen. Purely presentational - the parent owns all
 // import state and passes the selection handler down.
@@ -16,18 +17,9 @@ export default function SelectStep({ t, pending, error, maxMb, onFilesSelected }
         onChange={onFilesSelected}
         style={{ display: "none" }}
       />
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        disabled={pending}
-        style={{
-          display: "flex", alignItems: "center", gap: 10,
-          padding: "10px 20px", borderRadius: 999, border: `1px solid ${C.brand}`,
-          background: C.brandDim, color: C.brand, fontSize: 13, fontWeight: 700,
-          cursor: pending ? "default" : "pointer",
-        }}
-      >
-        <span style={{ fontSize: 16 }}>↑</span> {t("chooseCsvFile")}
-      </button>
+      <Button variant="primary" icon="↑" disabled={pending} onClick={() => fileInputRef.current?.click()}>
+        {t("chooseCsvFile")}
+      </Button>
       <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>{t("csvOnlyUpTo", maxMb)}</div>
       <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{t("importFileHint")}</div>
       {error && <div style={{ color: C.red, fontSize: 12, marginTop: 10 }}>{error}</div>}

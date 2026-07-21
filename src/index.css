@@ -20,14 +20,10 @@ body,
 }
 
 body {
-  /* matches C.bg - avoids a white flash/border before the app mounts.
-     Layered radial glows give the dark canvas depth without gradients:
-     a brand-indigo bloom top-right, a fainter cool wash top-left. */
+  /* Flat, neutral canvas — matches C.bg to avoid a flash before the app
+     mounts. No ambient glow: depth comes from the surface elevation ramp
+     (bg -> bgElevated -> panel -> panel2), not from decoration. */
   background-color: var(--dash-bg);
-  background-image:
-    radial-gradient(1000px 560px at 82% -10%, rgba(129, 140, 248, 0.06), transparent 60%),
-    radial-gradient(760px 520px at 4% 2%, rgba(52, 211, 153, 0.028), transparent 55%);
-  background-attachment: fixed;
   color: var(--dash-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

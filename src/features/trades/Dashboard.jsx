@@ -21,10 +21,16 @@ import AppShell from "../../ui/AppShell";
 import MetricCard from "../../ui/MetricCard";
 import EmptyState from "../../ui/EmptyState";
 import Button from "../../ui/Button";
+import Section from "../../ui/Section";
+import { type, space } from "../../ui/theme";
 
-// Responsive grids: cards reflow instead of squishing on narrow screens.
-const kpiGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))", gap: 12, marginBottom: 20 };
-const twoCol = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16, marginBottom: 16 };
+// The dashboard reads as a sequence of narrative beats (overview -> equity ->
+// activity -> strengths/weaknesses -> detail -> journal), not a grid of
+// interchangeable widgets — so beats are separated by whitespace
+// (`space.section`) rather than each getting its own boxed container.
+const narrativeGap = { marginBottom: space.section };
+const twoCol = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 };
+const kpiDivider = { width: 1, alignSelf: "stretch", background: C.borderSoft, minHeight: 40 };
 
 export default function Dashboard() {
   const { t } = useLocale();
@@ -106,12 +112,9 @@ export default function Dashboard() {
   return (
     <AppShell topRight={topRight}>
       {/* Page heading */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 11, letterSpacing: 3, color: C.brand, textTransform: "uppercase", marginBottom: 6, fontWeight: 700 }}>
-          {t("tradingJournal")}
-        </div>
-        <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0, letterSpacing: "-0.03em" }}>{t("performanceDashboard")}</h1>
-      </div>
+      <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 20px", letterSpacing: "-0.03em", color: C.text }}>
+        {t("performanceDashboard")}
+      </h1>
 
       {/* Toolbar: portfolio tabs + primary actions */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
@@ -187,30 +190,62 @@ export default function Dashboard() {
         />
       ) : (
         <>
-          {/* KPI Row */}
-          <div style={kpiGrid}>
-            <MetricCard label={t("totalPnl")} value={fmt(s.totalPnl)} accent={s.totalPnl >= 0 ? C.accent : C.red} />
-            <MetricCard label={t("winRate")} value={fmtPct(s.winRate)} sub={t("winsLossesShort", s.wins, s.losses)} accent={s.winRate >= 55 ? C.accent : C.gold} />
-            <MetricCard label={t("avgWin")} value={`$${Math.round(s.avgWin)}`} accent={C.accent} />
-            <MetricCard label={t("avgLoss")} value={`-$${Math.round(s.avgLoss)}`} accent={C.red} />
-            <MetricCard label={t("rrr")} value={s.rrr.toFixed(2)} sub={t("rewardRisk")} accent={s.rrr >= 1 ? C.accent : C.red} />
-            <MetricCard label={t("bestStreak")} value={`${s.maxWin}W`} sub={t("worstStreak", s.maxLoss)} accent={C.gold} />
+          {/* 1. Performance Overview — one hero number, the rest secondary */}
+          <div style={narrativeGap}>
+            <div style={type.sectionHeader}>{t("performanceOverview")}</div>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: 28, marginTop: space.lg }}>
+              <MetricCard
+                size="hero"
+                label={t("totalPnl")}
+                value={fmt(s.totalPnl)}
+                accent={s.totalPnl >= 0 ? C.accent : C.red}
+              />
+              <div style={kpiDivider} />
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 28, flex: 1, minWidth: 0 }}>
+                <MetricCard label={t("winRate")} value={fmtPct(s.winRate)} sub={t("winsLossesShort", s.wins, s.losses)} accent={s.winRate >= 55 ? C.accent : C.gold} />
+                <MetricCard label={t("avgWin")} value={`$${Math.round(s.avgWin)}`} accent={C.accent} />
+                <MetricCard label={t("avgLoss")} value={`-$${Math.round(s.avgLoss)}`} accent={C.red} />
+                <MetricCard label={t("rrr")} value={s.rrr.toFixed(2)} sub={t("rewardRisk")} accent={s.rrr >= 1 ? C.accent : C.red} />
+                <MetricCard label={t("bestStreak")} value={`${s.maxWin}W`} sub={t("worstStreak", s.maxLoss)} accent={C.gold} />
+              </div>
+            </div>
           </div>
 
-          <EquityCurveChart equity={s.equity} />
-
-          <PnlCalendar byDay={s.byDay} />
-
-          <div style={twoCol}>
-            <PnlByDayChart byDay={s.byDay} />
-            <PnlByAssetChart byAsset={s.byAsset} />
+          {/* 2. Equity Progress — the hero chart, the most room, the least chrome */}
+          <div style={narrativeGap}>
+            <div style={type.sectionHeader}>{t("equityProgress")}</div>
+            <div style={{ marginTop: space.lg }}>
+              <EquityCurveChart equity={s.equity} />
+            </div>
           </div>
 
-          <div style={twoCol}>
-            <WinLossPie wins={s.wins} losses={s.losses} avgWin={s.avgWin} avgLoss={s.avgLoss} />
-            <LongShortBreakdown longs={s.longs} shorts={s.shorts} />
+          {/* 3. Trading Activity */}
+          <div style={narrativeGap}>
+            <div style={type.sectionHeader}>{t("tradingActivity")}</div>
+            <div style={{ marginTop: space.lg }}>
+              <PnlCalendar byDay={s.byDay} />
+            </div>
           </div>
 
+          {/* 4. Strengths & Weaknesses — framed as one insight, not two loose charts */}
+          <div style={narrativeGap}>
+            <div style={type.sectionHeader}>{t("strengthsWeaknesses")}</div>
+            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4 }}>{t("winsLossesShort", s.wins, s.losses)}</div>
+            <div style={{ ...twoCol, marginTop: space.lg }}>
+              <WinLossPie wins={s.wins} losses={s.losses} avgWin={s.avgWin} avgLoss={s.avgLoss} />
+              <LongShortBreakdown longs={s.longs} shorts={s.shorts} />
+            </div>
+          </div>
+
+          {/* 5. Detailed Analytics — exploratory, collapsed by default */}
+          <Section title={t("detailedAnalytics")} tier="section" collapsible defaultCollapsed style={narrativeGap}>
+            <div style={twoCol}>
+              <PnlByDayChart byDay={s.byDay} />
+              <PnlByAssetChart byAsset={s.byAsset} />
+            </div>
+          </Section>
+
+          {/* 6. Trade Journal — the one section that earns a card */}
           <TradeLogTable trades={trades} onEdit={setEditingTrade} />
         </>
       )}

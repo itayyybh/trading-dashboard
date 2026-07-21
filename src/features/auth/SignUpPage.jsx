@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { C } from "../trades/constants";
 import { useLocale } from "../../lib/i18n/LocaleContext";
 import AuthForm from "./AuthForm";
+import Card from "../../ui/Card";
 
 export default function SignUpPage() {
   const [pending, setPending] = useState(false);
@@ -41,9 +42,11 @@ export default function SignUpPage() {
 
   if (confirmSent) {
     return (
-      <div style={{ background: C.bg, minHeight: "100vh", color: C.text, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', system-ui, sans-serif" }}>
-        <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: 32, width: 320, textAlign: "center" }}>
-          {t("confirmEmailPrefix")} <Link to="/sign-in" style={{ color: C.brand }}>{t("signIn").toLowerCase()}</Link>.
+      <div style={{ minHeight: "100vh", color: C.text, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', system-ui, sans-serif", padding: 20 }}>
+        <div style={{ width: 360, maxWidth: "100%" }}>
+          <Card padding={32} style={{ textAlign: "center" }}>
+            {t("confirmEmailPrefix")} <Link to="/sign-in" style={{ color: C.brand }}>{t("signIn").toLowerCase()}</Link>.
+          </Card>
         </div>
       </div>
     );

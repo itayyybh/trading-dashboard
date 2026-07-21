@@ -2,7 +2,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from "recharts";
 import { C, font } from "../../../ui/theme";
-import ChartCard from "../../../ui/ChartCard";
+import Section from "../../../ui/Section";
 import { fmt } from "../format";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
@@ -37,8 +37,8 @@ export default function EquityCurveChart({ equity }) {
   const off = zeroOffset(equity);
 
   return (
-    <ChartCard dir="ltr" title={t("equityCurve")} style={{ marginBottom: 16 }}>
-      <ResponsiveContainer width="100%" height={200}>
+    <Section dir="ltr" title={t("equityCurve")}>
+      <ResponsiveContainer width="100%" height={220}>
         <AreaChart data={equity} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
           <defs>
             {/* Hard color split at the zero line for the stroke... */}
@@ -81,6 +81,6 @@ export default function EquityCurveChart({ equity }) {
           />
         </AreaChart>
       </ResponsiveContainer>
-    </ChartCard>
+    </Section>
   );
 }

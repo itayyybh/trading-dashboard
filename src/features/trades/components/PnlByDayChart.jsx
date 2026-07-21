@@ -2,7 +2,7 @@ import {
   BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from "recharts";
 import { C, font } from "../../../ui/theme";
-import ChartCard from "../../../ui/ChartCard";
+import Section from "../../../ui/Section";
 import { fmt } from "../format";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
@@ -10,7 +10,7 @@ export default function PnlByDayChart({ byDay }) {
   const { t } = useLocale();
 
   return (
-    <ChartCard dir="ltr" title={t("pnlByDay")}>
+    <Section dir="ltr" title={t("pnlByDay")}>
       <ResponsiveContainer width="100%" height={180}>
         <BarChart data={byDay} margin={{ top: 4, right: 8, left: -8, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={C.borderSoft} vertical={false} />
@@ -34,6 +34,6 @@ export default function PnlByDayChart({ byDay }) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </ChartCard>
+    </Section>
   );
 }

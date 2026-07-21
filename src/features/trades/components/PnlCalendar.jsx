@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { C, font } from "../../../ui/theme";
-import ChartCard from "../../../ui/ChartCard";
+import Section from "../../../ui/Section";
 import { fmt } from "../format";
 import { useLocale } from "../../../lib/i18n/LocaleContext";
 
@@ -116,7 +116,7 @@ export default function PnlCalendar({ byDay }) {
   );
 
   return (
-    <ChartCard dir="ltr" title={t("pnlCalendar")} right={header} style={{ marginBottom: 16 }}>
+    <Section dir="ltr" title={t("pnlCalendar")} right={header}>
       {/* Weekday header row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6 }}>
         {weekdayNames.map((w) => (
@@ -156,7 +156,7 @@ export default function PnlCalendar({ byDay }) {
         <LegendSwatch color={C.red} label={t("lossDay")} />
         <LegendSwatch color={C.bgElevated} borderColor={C.borderSoft} label={t("noTradeDay")} />
       </div>
-    </ChartCard>
+    </Section>
   );
 }
 

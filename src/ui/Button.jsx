@@ -58,7 +58,7 @@ export default function Button({
         justifyContent: "center",
         gap: 7,
         width: block ? "100%" : undefined,
-        borderRadius: radius.pill,
+        borderRadius: radius.sm,
         fontWeight: 600,
         lineHeight: 1,
         cursor: disabled ? "not-allowed" : "pointer",
