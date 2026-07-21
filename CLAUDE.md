@@ -87,7 +87,7 @@ src/
 The `toDisplayTrade()` function is the single point where Supabase rows are translated to the display shape. This keeps stats.js, charts, and the trade log decoupled from Supabase column names. If Supabase schema changes, only this one function needs updating.
 
 **Import Batches:**
-Trade imports are grouped into batches (stored in `import_batch_id`) so duplicate files and import history can be tracked. The batch includes metadata (file name, broker, source) for audit trails.
+Trade imports are grouped into batches (stored in `import_batch_id`) so duplicate files and import history can be tracked. The batch stores file and import metadata; trade rows carry source metadata for audit trails.
 
 **Broker Parser Registry:**
 When `src/features/csvImport/parsers/index.js` is imported, broker-specific parsers self-register via `createGenericMappingAdapter()`. New brokers are added by creating a new parser module and registering it in that index.
