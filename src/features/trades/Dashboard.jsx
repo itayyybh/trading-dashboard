@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import { listPortfolios, createPortfolio, deletePortfolio } from "../portfolios/api";
+import { listPortfolios, createPortfolio } from "../portfolios/api";
 import PortfolioTabs from "../portfolios/PortfolioTabs";
+import PortfolioWizard from "../portfolios/PortfolioWizard";
+import PortfolioStart from "./PortfolioStart";
 import { getTrades } from "./api/tradesApi";
 import { stats } from "./stats";
 import { C } from "./constants";
@@ -34,9 +37,11 @@ const kpiDivider = { width: 1, alignSelf: "stretch", background: C.borderSoft, m
 
 export default function Dashboard() {
   const { t } = useLocale();
-  const [portfolios, setPortfolios] = useState(null); // null = loading
+  const navigate = useNavigate();
+  const [portfolios, setPortfolios] = useState(null); // null = loading (live, incl. archived)
   const [activeId, setActiveId] = useState(null);
   const [showImport, setShowImport] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [showLogTrade, setShowLogTrade] = useState(false);
   const [editingTrade, setEditingTrade] = useState(null);
   const [trades, setTrades] = useState(null); // null = loading, [] = loaded empty
@@ -46,7 +51,9 @@ export default function Dashboard() {
     listPortfolios()
       .then((rows) => {
         setPortfolios(rows);
-        if (rows.length) setActiveId(rows[0].id);
+        // Only non-archived portfolios are switchable on the dashboard.
+        const firstActive = rows.find((p) => !p.archived_at);
+        if (firstActive) setActiveId(firstActive.id);
       })
       .catch((e) => {
         setPortfolios([]);
@@ -73,19 +80,11 @@ export default function Dashboard() {
     if (activeId) setTrades(await getTrades(activeId));
   }
 
-  async function handleCreate(name) {
-    const created = await createPortfolio(name);
-    setPortfolios((prev) => [...prev, created]);
+  async function handleCreate(fields) {
+    const created = await createPortfolio(fields);
+    setPortfolios((prev) => [...(prev ?? []), created]);
     setActiveId(created.id);
-  }
-
-  async function handleDelete(id) {
-    await deletePortfolio(id);
-    setPortfolios((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      setActiveId((current) => (current === id ? next[0]?.id ?? null : current));
-      return next;
-    });
+    setShowWizard(false);
   }
 
   const topRight = (
@@ -106,6 +105,7 @@ export default function Dashboard() {
     );
   }
 
+  const switchable = portfolios.filter((p) => !p.archived_at);
   const activePortfolio = portfolios.find((p) => p.id === activeId) ?? null;
   const s = stats(trades ?? []);
 
@@ -119,11 +119,11 @@ export default function Dashboard() {
       {/* Toolbar: portfolio tabs + primary actions */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
         <PortfolioTabs
-          portfolios={portfolios}
+          portfolios={switchable}
           activeId={activeId}
           onSelect={setActiveId}
-          onCreate={handleCreate}
-          onDelete={handleDelete}
+          onNew={() => setShowWizard(true)}
+          onManage={() => navigate("/portfolios")}
         />
         {activePortfolio && (
           <div style={{ display: "flex", gap: 8 }}>
@@ -141,7 +141,12 @@ export default function Dashboard() {
 
       {activePortfolio && showImport && (
         <div style={{ marginBottom: 16 }}>
-          <ImportFlow portfolioId={activePortfolio.id} onClose={() => setShowImport(false)} onImported={refreshTrades} />
+          <ImportFlow
+            portfolioId={activePortfolio.id}
+            preferredPlatforms={activePortfolio.preferred_platforms}
+            onClose={() => setShowImport(false)}
+            onImported={refreshTrades}
+          />
         </div>
       )}
 
@@ -168,25 +173,29 @@ export default function Dashboard() {
         />
       )}
 
+      {showWizard && <PortfolioWizard onCreate={handleCreate} onClose={() => setShowWizard(false)} />}
+
       {/* State machine: no portfolio → error → loading → empty → data */}
       {!activePortfolio ? (
         <EmptyState
           title={t("createFirstPortfolio")}
           subtitle={t("createFirstPortfolioSubtitle")}
+          action={
+            <Button variant="primary" size="sm" icon="+" onClick={() => setShowWizard(true)}>
+              {t("createPortfolio")}
+            </Button>
+          }
         />
       ) : error ? (
         <EmptyState variant="error" title={t("somethingWentWrong")} subtitle={error} />
       ) : trades === null ? (
         <EmptyState variant="loading" title={t("loadingTrades")} />
       ) : trades.length === 0 ? (
-        <EmptyState
-          title={t("noTradesYetIn", activePortfolio.name)}
-          subtitle={t("noTradesYetSubtitle")}
-          action={
-            <Button variant="primary" size="sm" icon="↑" onClick={() => setShowImport(true)}>
-              {t("importCsv")}
-            </Button>
-          }
+        <PortfolioStart
+          portfolio={activePortfolio}
+          onImport={() => setShowImport(true)}
+          onLogTrade={() => setShowLogTrade(true)}
+          onManage={() => navigate("/portfolios")}
         />
       ) : (
         <>

@@ -6,6 +6,7 @@ import SignUpPage from "./features/auth/SignUpPage";
 import ForgotPasswordPage from "./features/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/ResetPasswordPage";
 import Dashboard from "./features/trades/Dashboard";
+import PortfoliosPage from "./features/portfolios/PortfoliosPage";
 
 export default function App() {
   return (
@@ -21,6 +22,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/portfolios"
+            element={
+              <ProtectedRoute>
+                <PortfoliosPage />
               </ProtectedRoute>
             }
           />
