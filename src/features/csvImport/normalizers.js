@@ -18,11 +18,19 @@ export function normalizeDirection(value) {
 }
 
 // Parses a numeric cell, tolerating currency symbols and thousands separators
-// (e.g. "$1,234.50"). Returns null when the value is empty or non-numeric.
+// (e.g. "$1,234.50"). Also reads accounting-style parenthesized negatives, where
+// a value wrapped in parentheses denotes a loss - e.g. Tradovate exports losses
+// as "$(27.00)", which must become -27, not 27. Returns null when the value is
+// empty or non-numeric.
 export function normalizeNumber(value) {
   if (value === null || value === undefined || value === "") return null;
-  const n = parseFloat(String(value).replace(/[$,]/g, "").trim());
-  return Number.isFinite(n) ? n : null;
+  const str = String(value).trim();
+  // Detect the wrapping parentheses BEFORE stripping them. Only $/whitespace may
+  // sit outside the parens (e.g. "$(27.00)"); anything else is not this format.
+  const isParenNegative = /^\(.*\)$/.test(str.replace(/[$\s]/g, ""));
+  const n = parseFloat(str.replace(/[$,()]/g, "").trim());
+  if (!Number.isFinite(n)) return null;
+  return isParenNegative ? -Math.abs(n) : n;
 }
 
 // Builds a YYYY-MM-DD string from numeric parts. Returns null if the day/month

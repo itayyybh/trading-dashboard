@@ -19,7 +19,7 @@ const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_ROWS = 10000;
 const MAX_MB = MAX_FILE_BYTES / 1024 / 1024;
 
-export default function ImportFlow({ portfolioId, onImported, onClose }) {
+export default function ImportFlow({ portfolioId, preferredPlatforms = [], onImported, onClose }) {
   const { t } = useLocale();
   const [templates, setTemplates] = useState([]);
 
@@ -117,8 +117,8 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
     setStep("mapping");
   }
 
-  async function handleFilesSelected(e) {
-    const selected = Array.from(e.target.files || []);
+  async function handleFiles(fileList) {
+    const selected = Array.from(fileList || []);
     if (!selected.length) return;
     setError(null);
     setDoneSummary(null);
@@ -297,7 +297,14 @@ export default function ImportFlow({ portfolioId, onImported, onClose }) {
         {step === "done" && doneSummary ? (
           <DoneStep t={t} doneSummary={doneSummary} onReset={reset} />
         ) : step === "select" ? (
-          <SelectStep t={t} pending={pending} error={error} maxMb={MAX_MB} onFilesSelected={handleFilesSelected} />
+          <SelectStep
+            t={t}
+            pending={pending}
+            error={error}
+            maxMb={MAX_MB}
+            preferredPlatforms={preferredPlatforms}
+            onFiles={handleFiles}
+          />
         ) : step === "mapping" ? (
           <MappingStep
             t={t}

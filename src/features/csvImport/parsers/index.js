@@ -2,6 +2,8 @@ import { registerParser } from "../engine/parserRegistry";
 import { registerAdvisory } from "../engine/advisories";
 import interactiveBrokers from "./interactiveBrokers";
 import tradingView from "./tradingView";
+import tradovate from "./tradovate";
+import binance from "./binance";
 import { tradingViewOrderHistory, tradingViewJournal } from "./tradingViewAdvisories";
 
 // Central registration point for all broker parser adapters. Importing this
@@ -10,6 +12,8 @@ import { tradingViewOrderHistory, tradingViewJournal } from "./tradingViewAdviso
 // plus its parser file - nothing else in the engine or UI changes.
 registerParser(interactiveBrokers);
 registerParser(tradingView);
+registerParser(tradovate);
+registerParser(binance);
 
 // Advisories: files we recognize but can't import, so the UI can guide the user
 // to the right export instead of dead-ending them.
